@@ -1,0 +1,174 @@
+import java.util.HashMap;
+import java.util.HashSet;
+
+public class WenyanNumPhaser {
+    public static HashMap<String, Integer> DIGIT = new HashMap<>() {{
+        put("零", 0);
+        put("一", 1);
+        put("二", 2);
+        put("三", 3);
+        put("四", 4);
+        put("五", 5);
+        put("六", 6);
+        put("七", 7);
+        put("八", 8);
+        put("九", 9);
+    }};
+
+    public static HashMap<String, Integer> EXP = new HashMap<>() {{
+        put("十", 1);
+        put("百", 2);
+        put("千", 3);
+        put("萬", 4);
+        put("億", 8);
+        put("兆", 12);
+        put("京", 16);
+        put("垓", 20);
+        put("秭", 24);
+        put("穰", 28);
+        put("溝", 32);
+        put("澗", 36);
+        put("正", 40);
+        put("載", 44);
+        put("極", 48);
+    }};
+
+    public static HashSet<String> FLOAT_DIVISION = new HashSet<>() {{
+        add("又");
+    }};
+
+    public static HashMap<String, Integer> FLOAT_EXP = new HashMap<>() {{
+        put("分", -1);
+        put("釐", -2);
+        put("毫", -3);
+        put("絲", -4);
+        put("忽", -5);
+        put("微", -6);
+        put("纖", -7);
+        put("沙", -8);
+        put("塵", -9);
+        put("埃", -10);
+        put("渺", -11);
+        put("漠", -12);
+    }};
+
+    public static String parseIntString(String text) throws ChineseNumberException {
+        Num num = parseIntHelper(text);
+        return num.num + "0".repeat(num.exp);
+    }
+
+    public static double parseFloat(String text) throws ChineseNumberException, NumberFormatException {
+        for (String div : FLOAT_DIVISION) {
+            if (text.contains(div)) {
+                String[] parts = text.split(div);
+                if (parts.length != 2)
+                    throw new ChineseNumberException("invalid float number");
+                // parts 1
+                double result = Double.parseDouble(parseIntString(parts[0]));
+                // parts 2 (Int FLOAT_EXP)+
+                int last = 0;
+                for (int i = 0; i < parts[1].length(); i ++) {
+                    if (FLOAT_EXP.containsKey(parts[1].substring(i, i+1))) {
+                        result += Double.parseDouble(parseIntString(parts[1].substring(last, i))
+                                +"e"+FLOAT_EXP.get(parts[1].substring(i, i+1)));
+                        last = i + 1;
+                    }
+                }
+                return result;
+            }
+        }
+        throw new ChineseNumberException("invalid float number");
+    }
+
+    private static Num parseIntHelper(String num) throws ChineseNumberException {
+        if (num.isEmpty())
+            return new Num("", 0);
+        String lastChar = num.substring(num.length() - 1);
+        if (EXP.containsKey(lastChar)) {
+            // case of (num EXP num EXP) 一萬一百
+            for (int i = num.length() - 2; i >= 0; i--) {
+                if (EXP.containsKey(num.substring(i, i+1))
+                        && EXP.get(num.substring(i, i+1)) > EXP.get(lastChar)) {
+
+                    Num l = parseIntHelper(num.substring(0, i+1));
+                    Num r;
+                    // if (num EXP 0 num EXP) 一萬零一百
+                    if (DIGIT.containsKey(num.substring(i+1, i+2))
+                            && DIGIT.get(num.substring(i+1, i+2)) == 0)
+                        r = parseIntHelper(num.substring(i+2));
+                    else
+                        r = parseIntHelper(num.substring(i+1));
+                    return l.add(r);
+                }
+            }
+            // case of (EXP) 萬
+            if (num.length() == 1)
+                return new Num("1", EXP.get(lastChar));
+            // case of (num EXP) 一百萬
+            return parseIntHelper(num.substring(0, num.length() - 1)).shift(EXP.get(lastChar));
+        } else if (DIGIT.containsKey(lastChar)) {
+            // case of (num EXP num EXP) 一萬一
+            for (int i = num.length() - 2; i >= 0; i--) {
+                if (EXP.containsKey(num.substring(i, i+1))) {
+                    Num l = parseIntHelper(num.substring(0, i+1));
+                    Num r;
+                    // if (num EXP 0 num EXP) 一萬零一
+                    if (DIGIT.containsKey(num.substring(i+1, i+2))
+                            && DIGIT.get(num.substring(i+1, i+2)) == 0)
+                        r = parseIntHelper(num.substring(i+2));
+                    else
+                        r = parseIntHelper(num.substring(i+1));
+                    return l.add(r);
+                }
+            }
+            // case of (num) 一
+            StringBuilder res = new StringBuilder();
+            boolean zero = true;
+            for (int i = 0; i < num.length(); i++) {
+                if (!DIGIT.containsKey(num.substring(i, i+1)))
+                    throw new ChineseNumberException("unexpected character");
+                if (zero && DIGIT.get(num.substring(i, i+1)) == 0)
+                    zero = false;
+                if (!zero)
+                    res.append(DIGIT.get(num.substring(i, i+1)));
+            }
+            if (zero)
+                return new Num("0", 0);
+            else
+                return new Num(res.toString(), 0);
+        } else {
+            throw new ChineseNumberException("unexpected character");
+        }
+    }
+
+    private static class Num {
+        String num;
+        int exp;
+
+        Num(String num, int exp) {
+            this.num = num;
+            this.exp = exp;
+        }
+
+        Num add(Num other) throws ChineseNumberException {
+            if (exp - other.exp < other.num.length())
+                throw new ChineseNumberException("invalid number");
+            return new Num(
+                    num + "0".repeat(exp - other.exp - other.num.length()) + other.num,
+                    other.exp);
+        }
+
+        Num shift(int exp) {
+            if (num.equals("0"))
+                return this;
+            else
+                return new Num(this.num, this.exp + exp);
+        }
+    }
+
+    public static class ChineseNumberException extends Exception {
+        public ChineseNumberException(String message) {
+            super(message);
+        }
+    }
+}
