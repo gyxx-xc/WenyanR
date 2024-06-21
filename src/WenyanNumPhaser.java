@@ -52,17 +52,17 @@ public class WenyanNumPhaser {
         put("漠", -12);
     }};
 
-    public static String parseIntString(String text) throws ChineseNumberException {
+    public static String parseIntString(String text) throws WenyanNumberException {
         Num num = parseIntHelper(text);
         return num.num + "0".repeat(num.exp);
     }
 
-    public static double parseFloat(String text) throws ChineseNumberException, NumberFormatException {
+    public static double parseFloat(String text) throws WenyanNumberException, NumberFormatException {
         for (String div : FLOAT_DIVISION) {
             if (text.contains(div)) {
                 String[] parts = text.split(div);
                 if (parts.length != 2)
-                    throw new ChineseNumberException("invalid float number");
+                    throw new WenyanNumberException("invalid float number");
                 // parts 1
                 double result = Double.parseDouble(parseIntString(parts[0]));
                 // parts 2 (Int FLOAT_EXP)+
@@ -77,10 +77,10 @@ public class WenyanNumPhaser {
                 return result;
             }
         }
-        throw new ChineseNumberException("invalid float number");
+        throw new WenyanNumberException("invalid float number");
     }
 
-    private static Num parseIntHelper(String num) throws ChineseNumberException {
+    private static Num parseIntHelper(String num) throws WenyanNumberException {
         if (num.isEmpty())
             return new Num("", 0);
         String lastChar = num.substring(num.length() - 1);
@@ -126,7 +126,7 @@ public class WenyanNumPhaser {
             boolean zero = true;
             for (int i = 0; i < num.length(); i++) {
                 if (!DIGIT.containsKey(num.substring(i, i+1)))
-                    throw new ChineseNumberException("unexpected character");
+                    throw new WenyanNumberException("unexpected character");
                 if (zero && DIGIT.get(num.substring(i, i+1)) == 0)
                     zero = false;
                 if (!zero)
@@ -137,7 +137,7 @@ public class WenyanNumPhaser {
             else
                 return new Num(res.toString(), 0);
         } else {
-            throw new ChineseNumberException("unexpected character");
+            throw new WenyanNumberException("unexpected character");
         }
     }
 
@@ -150,9 +150,9 @@ public class WenyanNumPhaser {
             this.exp = exp;
         }
 
-        Num add(Num other) throws ChineseNumberException {
+        Num add(Num other) throws WenyanNumberException {
             if (exp - other.exp < other.num.length())
-                throw new ChineseNumberException("invalid number");
+                throw new WenyanNumberException("invalid number");
             return new Num(
                     num + "0".repeat(exp - other.exp - other.num.length()) + other.num,
                     other.exp);
@@ -166,8 +166,8 @@ public class WenyanNumPhaser {
         }
     }
 
-    public static class ChineseNumberException extends Exception {
-        public ChineseNumberException(String message) {
+    public static class WenyanNumberException extends Exception {
+        public WenyanNumberException(String message) {
             super(message);
         }
     }

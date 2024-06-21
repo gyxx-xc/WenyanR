@@ -209,4 +209,22 @@ public interface WenyanRVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitImport_statement(WenyanRParser.Import_statementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link WenyanRParser#arith_binary_op}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArith_binary_op(WenyanRParser.Arith_binary_opContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link WenyanRParser#key_function}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitKey_function(WenyanRParser.Key_functionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link WenyanRParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType(WenyanRParser.TypeContext ctx);
 }
