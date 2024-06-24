@@ -1,4 +1,8 @@
+package visitor;
+
 import antlr.WenyanRParser;
+import utils.WenyanFunctionEnvironment;
+import utils.WenyanValue;
 
 public class WenyanMainVisitor extends WenyanExecVisitor {
     public WenyanMainVisitor(WenyanFunctionEnvironment functionEnvironment) {

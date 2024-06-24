@@ -1,6 +1,4 @@
-import antlr.WenyanRParser;
-
-import java.math.BigInteger;
+package utils;
 
 public class WenyanValue {
     public enum Type {
