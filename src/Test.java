@@ -16,7 +16,7 @@ public class Test {
         WenyanRParser parser = new WenyanRParser(tokens);
         ParseTree tree = parser.program();
 
-        WenyanMainVisitor eval = new WenyanMainVisitor(new WenyanFunctionEnvironment());
+        WenyanMainVisitor eval = new WenyanMainVisitor();
         eval.visit(tree);
         System.out.println(tree.toStringTree(parser));
     }

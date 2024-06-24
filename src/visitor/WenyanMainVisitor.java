@@ -4,9 +4,15 @@ import antlr.WenyanRParser;
 import utils.WenyanFunctionEnvironment;
 import utils.WenyanValue;
 
-public class WenyanMainVisitor extends WenyanExecVisitor {
-    public WenyanMainVisitor(WenyanFunctionEnvironment functionEnvironment) {
-        super(functionEnvironment);
+import java.util.Stack;
+
+public class WenyanMainVisitor extends WenyanVisitor {
+    public WenyanMainVisitor(WenyanFunctionEnvironment functionEnvironment, Stack<WenyanValue> reaultStack) {
+        super(functionEnvironment, reaultStack);
+    }
+
+    public WenyanMainVisitor() {
+        super(new WenyanFunctionEnvironment(), new Stack<>());
     }
 
     @Override
