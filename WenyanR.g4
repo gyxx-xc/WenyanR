@@ -28,7 +28,7 @@ expr_statement              : declare_statement
                             | flush_statement
                             ;
 
-data                        : data_type=(STRING_LITERAL|BOOL_VALUE|INT_NUM|FLOAT_NUM)         # data_primary
+data                        : data_type=(STRING_LITERAL|BOOL_VALUE|INT_NUM|FLOAT_NUM)    # data_primary
                             | '其'                                                       # id_last
                             | '之'                                                       # id_last_with_self
                             | IDENTIFIER                                                # id

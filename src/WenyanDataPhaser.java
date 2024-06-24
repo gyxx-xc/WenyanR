@@ -1,7 +1,7 @@
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class WenyanNumPhaser {
+public class WenyanDataPhaser {
     public static HashMap<String, Integer> DIGIT = new HashMap<>() {{
         put("零", 0);
         put("一", 1);
@@ -52,6 +52,11 @@ public class WenyanNumPhaser {
         put("漠", -12);
     }};
 
+    private static final HashMap<String, Boolean> BOOL_MAP = new HashMap<>() {{
+        put("陰", false);
+        put("陽", true);
+    }};
+
     public static String parseIntString(String text) throws WenyanNumberException {
         Num num = parseIntHelper(text);
         return num.num + "0".repeat(num.exp);
@@ -78,6 +83,17 @@ public class WenyanNumPhaser {
             }
         }
         throw new WenyanNumberException("invalid float number");
+    }
+
+    public static boolean parseBool(String text) throws WenyanDataException {
+        if (BOOL_MAP.containsKey(text))
+            return BOOL_MAP.get(text);
+        else
+            throw new WenyanDataException("invalid bool value");
+    }
+
+    public static String parseString(String text) {
+        return text.substring(2, text.length() - 2);
     }
 
     private static Num parseIntHelper(String num) throws WenyanNumberException {
@@ -171,4 +187,11 @@ public class WenyanNumPhaser {
             super(message);
         }
     }
+
+    public static class WenyanDataException extends Exception {
+        public WenyanDataException(String message) {
+            super(message);
+        }
+    }
+
 }
