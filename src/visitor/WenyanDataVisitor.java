@@ -6,10 +6,11 @@ import utils.WenyanFunctionEnvironment;
 import utils.WenyanValue;
 
 import java.math.BigInteger;
+import java.util.Stack;
 
-public class WenyanDataVisitor extends WenyanExecVisitor {
-    public WenyanDataVisitor(WenyanFunctionEnvironment functionEnvironment) {
-        super(functionEnvironment);
+public class WenyanDataVisitor extends WenyanVisitor {
+    public WenyanDataVisitor(WenyanFunctionEnvironment functionEnvironment, Stack<WenyanValue> reaultStack) {
+        super(functionEnvironment, reaultStack);
     }
 
     @Override
@@ -45,6 +46,22 @@ public class WenyanDataVisitor extends WenyanExecVisitor {
             System.out.println(e.getMessage());
             throw new RuntimeException("error");
         }
+    }
+
+    @Override
+    public WenyanValue visitId_last(WenyanRParser.Id_lastContext ctx) {
+        return this.reaultStack.peek();
+    }
+
+    @Override
+    public WenyanValue visitId_last_with_self(WenyanRParser.Id_last_with_selfContext ctx) {
+        return this.reaultStack.peek();
+    }
+
+    @Override
+    public WenyanValue visitId(WenyanRParser.IdContext ctx) {
+        String id = ctx.IDENTIFIER().getText();
+        return this.functionEnvironment.getVariable(id.substring(1, id.length() - 1));
     }
 
 }

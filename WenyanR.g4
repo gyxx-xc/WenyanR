@@ -1,7 +1,5 @@
 grammar WenyanR;
 
-
-
 program                     : statement* EOF;
 
 statement                   : expr_statement
