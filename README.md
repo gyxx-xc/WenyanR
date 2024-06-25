@@ -10,3 +10,6 @@ I am not very good at java, as you can see, I even use makefile as a making tool
 > 3. add a pronoun 'zhi', and make the grammar more standard (shu zhi -> shu + zhi)
 3. The number phaser will be work in most of the time, I guess
 4. I think there will have bugs when number longer than 10000 digits.
+
+## Todo
+- better error coping

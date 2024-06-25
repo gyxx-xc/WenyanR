@@ -17,7 +17,6 @@ public class WenyanMainVisitor extends WenyanVisitor {
 
     @Override
     public WenyanValue visitDeclare_statement(WenyanRParser.Declare_statementContext ctx) {
-        System.out.println(ctx.d.getType());
         return super.visitDeclare_statement(ctx);
     }
 }

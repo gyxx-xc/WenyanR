@@ -100,11 +100,25 @@ public interface WenyanRVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBoolean_algebra_statement(WenyanRParser.Boolean_algebra_statementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link WenyanRParser#assign_statement}.
+	 * Visit a parse tree produced by the {@code assign_data_statement}
+	 * labeled alternative in {@link WenyanRParser#assign_statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAssign_statement(WenyanRParser.Assign_statementContext ctx);
+	T visitAssign_data_statement(WenyanRParser.Assign_data_statementContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code assign_null_statement}
+	 * labeled alternative in {@link WenyanRParser#assign_statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssign_null_statement(WenyanRParser.Assign_null_statementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link WenyanRParser#key_function_call_statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitKey_function_call_statement(WenyanRParser.Key_function_call_statementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link WenyanRParser#function_define_statement}.
 	 * @param ctx the parse tree
@@ -125,12 +139,6 @@ public interface WenyanRVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunction_post_call(WenyanRParser.Function_post_callContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link WenyanRParser#key_function_call_statement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitKey_function_call_statement(WenyanRParser.Key_function_call_statementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link WenyanRParser#object_statement}.
 	 * @param ctx the parse tree
@@ -221,6 +229,18 @@ public interface WenyanRVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitKey_function(WenyanRParser.Key_functionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link WenyanRParser#preposition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPreposition(WenyanRParser.PrepositionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link WenyanRParser#declare_op}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDeclare_op(WenyanRParser.Declare_opContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link WenyanRParser#type}.
 	 * @param ctx the parse tree

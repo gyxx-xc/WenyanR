@@ -59,9 +59,16 @@ public class WenyanDataPhaser {
         put("陽", true);
     }};
 
-    public static String parseIntString(String text) throws WenyanNumberException {
+    private static final HashMap<String, WenyanValue.Type> TYPE_MAP = new HashMap<>() {{
+        put("爻", WenyanValue.Type.BOOL);
+        put("數", WenyanValue.Type.NUMBER);
+        put("言", WenyanValue.Type.STRING);
+        put("列", WenyanValue.Type.LIST);
+    }};
+
+    public static int parseInt(String text) throws WenyanNumberException {
         Num num = parseIntHelper(text);
-        return num.num + "0".repeat(num.exp);
+        return Integer.parseInt(num.num + "0".repeat(num.exp));
     }
 
     public static double parseFloat(String text) throws WenyanNumberException, NumberFormatException {
@@ -71,12 +78,12 @@ public class WenyanDataPhaser {
                 if (parts.length != 2)
                     throw new WenyanNumberException("invalid float number");
                 // parts 1
-                double result = Double.parseDouble(parseIntString(parts[0]));
+                double result = parseInt(parts[0]);
                 // parts 2 (Int FLOAT_EXP)+
                 int last = 0;
                 for (int i = 0; i < parts[1].length(); i ++) {
                     if (FLOAT_EXP.containsKey(parts[1].substring(i, i+1))) {
-                        result += Double.parseDouble(parseIntString(parts[1].substring(last, i))
+                        result += parseInt(parts[1].substring(last, i)
                                 +"e"+FLOAT_EXP.get(parts[1].substring(i, i+1)));
                         last = i + 1;
                     }
@@ -96,6 +103,13 @@ public class WenyanDataPhaser {
 
     public static String parseString(String text) {
         return text.substring(2, text.length() - 2);
+    }
+
+    public static WenyanValue.Type parseType(String text) throws WenyanDataException {
+        if (TYPE_MAP.containsKey(text))
+            return TYPE_MAP.get(text);
+        else
+            throw new WenyanDataException("invalid data type");
     }
 
     private static Num parseIntHelper(String num) throws WenyanNumberException {

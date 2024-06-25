@@ -3,27 +3,28 @@ grammar WenyanR;
 program                     : statement* EOF;
 
 statement                   : expr_statement
+                            | flush_statement
                             | object_statement
+
                             | if_statement
                             | for_statement
                             | return_statement
                             | BREAK
+
                             | import_statement
                             ;
 
 expr_statement              : declare_statement
-                            | define_statement
-                            | reference_statement
                             | init_declare_statement
+                            | reference_statement
 
                             | assign_statement
-                            | mod_math_statement
                             | boolean_algebra_statement
+                            | mod_math_statement
 
                             | function_define_statement
                             | function_call_statement
                             | key_function_call_statement
-                            | flush_statement
                             ;
 
 data                        : data_type=(STRING_LITERAL|BOOL_VALUE|INT_NUM|FLOAT_NUM)    # data_primary
@@ -34,22 +35,23 @@ data                        : data_type=(STRING_LITERAL|BOOL_VALUE|INT_NUM|FLOAT
                             ;
 
 reference_statement         : '夫' data ;
-declare_statement           : d=DECLARE_OP INT_NUM type ('曰' data)* ;
-init_declare_statement      : '有' type data ;
-define_statement            : '名之' ('曰' IDENTIFIER)+;
+declare_statement           : declare_op INT_NUM type ('曰' d+=data)* define_statement;
+init_declare_statement      : '有' type data define_statement;
+define_statement            : '名之' ('曰' d+=IDENTIFIER)+;
 
-mod_math_statement          : '除' data PREPOSITION data POST_MOD_MATH_OP ;
-boolean_algebra_statement   : '夫' data data LOGIC_BINARY_OP ;
-assign_statement            : '昔之' data '者' (('今' data '是矣') | '今不復存矣') ;
+mod_math_statement          : '除' data pp=(PREPOSITION_LEFT|PREPOSITION_RIGHT) data POST_MOD_MATH_OP ;
+boolean_algebra_statement   : '夫' data data op=(AND | OR) ;
+assign_statement            : '昔之' data '者' ('今' data '是矣') # assign_data_statement
+                            | '昔之' data '者' '今不復存矣'        # assign_null_statement;
+
+key_function_call_statement : key_function data (preposition data)* ;
 
 function_define_statement   : LOCAL_DECLARE_OP '一術' '名之' '曰' IDENTIFIER
                               ('欲行是術' '必先得' (INT_NUM type ('曰' IDENTIFIER)+)+)?
                               ('是術曰' | '乃行是術曰') statement* '是謂' IDENTIFIER '之術也' ;
-function_call_statement     : '施' data (PREPOSITION data)* # function_pre_call
+function_call_statement     : '施' data (preposition data)* # function_pre_call
                             | '取' INT_NUM '以施' data       # function_post_call
                             ;
-
-key_function_call_statement : key_function data (PREPOSITION data)* ;
 
 object_statement            : LOCAL_DECLARE_OP INT_NUM '物' define_statement (object_define_statement)? ;
 object_define_statement     : '其物如是' ('物之' STRING_LITERAL '者' type '曰' data)+ '是謂' IDENTIFIER '之物也' ;
@@ -77,7 +79,8 @@ STRING_LITERAL              : '「「' ( ~('」') )* '」」' ;
 IDENTIFIER                  : '「' ( ~('」') )+ '」';
 arith_binary_op             : '加'|'減'|'乘'|'除' ;
 POST_MOD_MATH_OP            : '所餘幾何' ;
-LOGIC_BINARY_OP             : '中有陽乎'|'中無陰乎' ;
+AND                         : '中無陰乎';
+OR                          : '中有陽乎';
 UNARY_OP                    : '變' ;
 IF_LOGIC_OP                 : '等於'|'不等於'|'不大於'|'不小於'|'大於'|'小於' ;
 
@@ -86,13 +89,14 @@ key_function                : arith_binary_op
                             | ARRAY_KEY_FUNCTION
                             | WRITE_KEY_FUNCTION
                             ;
+
 ARRAY_KEY_FUNCTION          : '銜' | '充' ;
 WRITE_KEY_FUNCTION          : '書' ;
 
-PREPOSITION                 : PREPOSITION_LEFT | PREPOSITION_RIGHT ;
+preposition                 : PREPOSITION_LEFT | PREPOSITION_RIGHT ;
 PREPOSITION_LEFT            : '於' ;
 PREPOSITION_RIGHT           : '以' ;
-DECLARE_OP                  : LOCAL_DECLARE_OP | GLOBAL_DECLARE_OP ;
+declare_op                  : LOCAL_DECLARE_OP | GLOBAL_DECLARE_OP ;
 LOCAL_DECLARE_OP            : '吾有' ;
 GLOBAL_DECLARE_OP           : '今有' ;
 
