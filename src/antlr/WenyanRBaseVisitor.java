@@ -242,13 +242,6 @@ public class WenyanRBaseVisitor<T> extends AbstractParseTreeVisitor<T> implement
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitArith_binary_op(WenyanRParser.Arith_binary_opContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
 	@Override public T visitKey_function(WenyanRParser.Key_functionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

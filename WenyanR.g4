@@ -35,8 +35,8 @@ data                        : data_type=(STRING_LITERAL|BOOL_VALUE|INT_NUM|FLOAT
                             ;
 
 reference_statement         : '夫' data ;
-declare_statement           : declare_op INT_NUM type ('曰' d+=data)* define_statement;
-init_declare_statement      : '有' type data define_statement;
+declare_statement           : declare_op INT_NUM type ('曰' d+=data)* define_statement?;
+init_declare_statement      : '有' type data define_statement?;
 define_statement            : '名之' ('曰' d+=IDENTIFIER)+;
 
 mod_math_statement          : '除' data pp=(PREPOSITION_LEFT|PREPOSITION_RIGHT) data POST_MOD_MATH_OP ;
@@ -44,7 +44,7 @@ boolean_algebra_statement   : '夫' data data op=(AND | OR) ;
 assign_statement            : '昔之' data '者' ('今' data '是矣') # assign_data_statement
                             | '昔之' data '者' '今不復存矣'        # assign_null_statement;
 
-key_function_call_statement : key_function data (preposition data)* ;
+key_function_call_statement : key_function data (pp+=(PREPOSITION_LEFT|PREPOSITION_RIGHT) data)* ;
 
 function_define_statement   : LOCAL_DECLARE_OP '一術' '名之' '曰' IDENTIFIER
                               ('欲行是術' '必先得' (INT_NUM type ('曰' IDENTIFIER)+)+)?
@@ -77,20 +77,27 @@ import_statement            : '吾嘗觀' STRING_LITERAL '之書' ('方悟' IDEN
 
 STRING_LITERAL              : '「「' ( ~('」') )* '」」' ;
 IDENTIFIER                  : '「' ( ~('」') )+ '」';
-arith_binary_op             : '加'|'減'|'乘'|'除' ;
 POST_MOD_MATH_OP            : '所餘幾何' ;
 AND                         : '中無陰乎';
 OR                          : '中有陽乎';
-UNARY_OP                    : '變' ;
 IF_LOGIC_OP                 : '等於'|'不等於'|'不大於'|'不小於'|'大於'|'小於' ;
 
-key_function                : arith_binary_op
+key_function                : op=(
+                            ADD | SUN | MUL | DIV
                             | UNARY_OP
-                            | ARRAY_KEY_FUNCTION
+                            | ARRAY_COMBINE_OP
+                            | ARRAY_ADD_OP
                             | WRITE_KEY_FUNCTION
-                            ;
+                            ) ;
 
-ARRAY_KEY_FUNCTION          : '銜' | '充' ;
+ADD                         : '加' ;
+SUB                         : '減' ;
+MUL                         : '乘' ;
+DIV                         : '除' ;
+UNARY_OP                    : '變' ;
+
+ARRAY_COMBINE_OP            : '銜' ;
+ARRAY_ADD_OP                : '充' ;
 WRITE_KEY_FUNCTION          : '書' ;
 
 preposition                 : PREPOSITION_LEFT | PREPOSITION_RIGHT ;

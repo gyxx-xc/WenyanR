@@ -17,7 +17,8 @@ public class Test {
         ParseTree tree = parser.program();
 
         WenyanMainVisitor eval = new WenyanMainVisitor();
-        eval.visit(tree);
         System.out.println(tree.toStringTree(parser));
+        eval.visit(tree);
+        System.out.println(1.1 % 1);
     }
 }

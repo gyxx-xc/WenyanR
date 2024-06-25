@@ -25,7 +25,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
             int n = WenyanDataPhaser.parseInt(ctx.INT_NUM().getText());
             if (!ctx.d.isEmpty() && n != ctx.d.size())
                 throw new RuntimeException("number of variables does not match number of values");
-            if (!ctx.define_statement().d.isEmpty() && n != ctx.define_statement().d.size())
+            if (ctx.define_statement() != null && n != ctx.define_statement().d.size())
                 throw new RuntimeException("number of variables does not match number of values");
             for (int i = 0; i < n; i++) {
                 if (!ctx.d.isEmpty()) {
@@ -36,7 +36,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
                 } else {
                     reaultStack.push(new WenyanValue(WenyanDataPhaser.parseType(ctx.type().getText()), null, false));
                 }
-                if (!ctx.define_statement().d.isEmpty())
+                if (ctx.define_statement() != null)
                     functionEnvironment.setVariable(ctx.define_statement().d.get(i).getText(), reaultStack.peek());
             }
             return reaultStack.peek();
@@ -48,13 +48,14 @@ public class WenyanExprVisitor extends WenyanVisitor{
     @Override
     public WenyanValue visitInit_declare_statement(WenyanRParser.Init_declare_statementContext ctx) {
         try {
-            if (ctx.define_statement().d.size() != 1)
+            if (ctx.define_statement() != null && ctx.define_statement().d.size() != 1)
                 throw new RuntimeException("number of variables does not match number of values");
             WenyanValue value = (new WenyanDataVisitor(functionEnvironment, reaultStack)).visit(ctx.data());
             if (WenyanDataPhaser.parseType(ctx.type().getText()) != value.getType())
                 throw new RuntimeException("type does not match");
             reaultStack.push(new WenyanValue(value.getType(), value.getValue(), false));
-            functionEnvironment.setVariable(ctx.define_statement().d.get(1).getText(), reaultStack.peek());
+            if (ctx.define_statement() != null)
+                functionEnvironment.setVariable(ctx.define_statement().d.get(1).getText(), reaultStack.peek());
             return reaultStack.peek();
         } catch (WenyanDataPhaser.WenyanDataException e) {
             throw new RuntimeException(e);
@@ -102,9 +103,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
         WenyanValue left = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.data(0));
         WenyanValue right = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.data(1));
         if (left.getType() != WenyanValue.Type.NUMBER || right.getType() != WenyanValue.Type.NUMBER)
-            throw new RuntimeException("type does not match");
-        if (left.getValue() instanceof Double || right.getValue() instanceof Double)
-            throw new RuntimeException("mod operation does not support float number");
+            throw new RuntimeException("mod need to be number");
         return switch (ctx.pp.getType()) {
             case WenyanRParser.PREPOSITION_RIGHT -> reaultStack.push(new WenyanValue(WenyanValue.Type.NUMBER,
                     (int) left.getValue() % (int) right.getValue(), true));

@@ -159,7 +159,7 @@ public class WenyanDataPhaser {
             for (int i = 0; i < num.length(); i++) {
                 if (!DIGIT.containsKey(num.substring(i, i+1)))
                     throw new WenyanNumberException("unexpected character");
-                if (zero && DIGIT.get(num.substring(i, i+1)) == 0)
+                if (zero && DIGIT.get(num.substring(i, i+1)) != 0)
                     zero = false;
                 if (!zero)
                     res.append(DIGIT.get(num.substring(i, i+1)));
@@ -208,6 +208,17 @@ public class WenyanDataPhaser {
         public WenyanDataException(String message) {
             super(message);
         }
+    }
+
+    public static void main(String[] args) throws WenyanNumberException {
+        System.out.println(parseInt("一百二十三"));
+        System.out.println(parseInt("一二三"));
+        System.out.println(parseInt("一百十萬一百"));
+        System.out.println(parseInt("一百二十三萬零一一百"));
+        System.out.println(parseInt("一百百二十十一一"));
+        System.out.println(parseInt("一百二十三萬零"));
+        System.out.println(parseInt("一百二十三萬零零百"));
+
     }
 
 }
