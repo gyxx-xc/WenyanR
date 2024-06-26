@@ -218,7 +218,6 @@ public class WenyanDataPhaser {
         System.out.println(parseInt("一百百二十十一一"));
         System.out.println(parseInt("一百二十三萬零"));
         System.out.println(parseFloat("一一又一分"));
-
     }
 
 }
