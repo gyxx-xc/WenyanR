@@ -68,7 +68,6 @@ BOOL_VALUE=67
 BREAK=68
 COMMENT=69
 WS=70
-SUN=71
 '其'=1
 '之'=2
 '長'=3

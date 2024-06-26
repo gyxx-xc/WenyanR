@@ -16,26 +16,21 @@ public class WenyanDataVisitor extends WenyanVisitor {
     @Override
     public WenyanValue visitData_primary(WenyanRParser.Data_primaryContext ctx) {
         try {
-            switch (ctx.data_type.getType()) {
-                case WenyanRParser.BOOL_VALUE:
-                    return new WenyanValue(WenyanValue.Type.BOOL,
-                            WenyanDataPhaser.parseBool(ctx.BOOL_VALUE().getText()), true);
-                case WenyanRParser.INT_NUM:
-                    return new WenyanValue(WenyanValue.Type.NUMBER,
-                            WenyanDataPhaser.parseInt(ctx.INT_NUM().getText()), true);
-                case WenyanRParser.FLOAT_NUM:
-                    return new WenyanValue(WenyanValue.Type.NUMBER,
-                            WenyanDataPhaser.parseFloat(ctx.FLOAT_NUM().getText()),
-                            true);
-                case WenyanRParser.STRING_LITERAL:
-                    return new WenyanValue(WenyanValue.Type.STRING,
-                            WenyanDataPhaser.parseString(ctx.STRING_LITERAL().getText()), true);
-                default:
-                    throw new RuntimeException("unknown data type");
-            }
+            return switch (ctx.data_type.getType()) {
+                case WenyanRParser.BOOL_VALUE -> new WenyanValue(WenyanValue.Type.BOOL,
+                        WenyanDataPhaser.parseBool(ctx.BOOL_VALUE().getText()), true);
+                case WenyanRParser.INT_NUM -> new WenyanValue(WenyanValue.Type.INT,
+                        WenyanDataPhaser.parseInt(ctx.INT_NUM().getText()), true);
+                case WenyanRParser.FLOAT_NUM -> new WenyanValue(WenyanValue.Type.DOUBLE,
+                        WenyanDataPhaser.parseFloat(ctx.FLOAT_NUM().getText()),
+                        true);
+                case WenyanRParser.STRING_LITERAL -> new WenyanValue(WenyanValue.Type.STRING,
+                        WenyanDataPhaser.parseString(ctx.STRING_LITERAL().getText()), true);
+                default -> throw new RuntimeException("unknown data type");
+            };
         } catch (WenyanDataPhaser.WenyanNumberException | WenyanDataPhaser.WenyanDataException e) {
             // TODO: need better error handling
-            System.out.println(e.getMessage());
+            System.out.println(e);
             throw new RuntimeException("error");
         }
     }

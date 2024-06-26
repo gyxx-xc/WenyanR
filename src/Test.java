@@ -19,6 +19,5 @@ public class Test {
         WenyanMainVisitor eval = new WenyanMainVisitor();
         System.out.println(tree.toStringTree(parser));
         eval.visit(tree);
-        System.out.println(1.1 % 1);
     }
 }

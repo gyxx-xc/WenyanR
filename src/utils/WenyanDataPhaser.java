@@ -61,7 +61,7 @@ public class WenyanDataPhaser {
 
     private static final HashMap<String, WenyanValue.Type> TYPE_MAP = new HashMap<>() {{
         put("爻", WenyanValue.Type.BOOL);
-        put("數", WenyanValue.Type.NUMBER);
+        put("數", WenyanValue.Type.INT);
         put("言", WenyanValue.Type.STRING);
         put("列", WenyanValue.Type.LIST);
     }};
@@ -83,7 +83,7 @@ public class WenyanDataPhaser {
                 int last = 0;
                 for (int i = 0; i < parts[1].length(); i ++) {
                     if (FLOAT_EXP.containsKey(parts[1].substring(i, i+1))) {
-                        result += parseInt(parts[1].substring(last, i)
+                        result += Double.parseDouble(parseInt(parts[1].substring(last, i))
                                 +"e"+FLOAT_EXP.get(parts[1].substring(i, i+1)));
                         last = i + 1;
                     }
@@ -217,7 +217,7 @@ public class WenyanDataPhaser {
         System.out.println(parseInt("一百二十三萬零一一百"));
         System.out.println(parseInt("一百百二十十一一"));
         System.out.println(parseInt("一百二十三萬零"));
-        System.out.println(parseInt("一百二十三萬零零百"));
+        System.out.println(parseFloat("一一又一分"));
 
     }
 

@@ -17,6 +17,7 @@ statement                   : expr_statement
 expr_statement              : declare_statement
                             | init_declare_statement
                             | reference_statement
+                            | define_statement
 
                             | assign_statement
                             | boolean_algebra_statement
@@ -35,16 +36,16 @@ data                        : data_type=(STRING_LITERAL|BOOL_VALUE|INT_NUM|FLOAT
                             ;
 
 reference_statement         : '夫' data ;
-declare_statement           : declare_op INT_NUM type ('曰' d+=data)* define_statement?;
-init_declare_statement      : '有' type data define_statement?;
-define_statement            : '名之' ('曰' d+=IDENTIFIER)+;
+declare_statement           : declare_op INT_NUM type ('曰' d+=data)* ;
+init_declare_statement      : '有' type data ;
+define_statement            : '名之' ('曰' d+=IDENTIFIER)+ ;
 
 mod_math_statement          : '除' data pp=(PREPOSITION_LEFT|PREPOSITION_RIGHT) data POST_MOD_MATH_OP ;
 boolean_algebra_statement   : '夫' data data op=(AND | OR) ;
 assign_statement            : '昔之' data '者' ('今' data '是矣') # assign_data_statement
                             | '昔之' data '者' '今不復存矣'        # assign_null_statement;
 
-key_function_call_statement : key_function data (pp+=(PREPOSITION_LEFT|PREPOSITION_RIGHT) data)* ;
+key_function_call_statement : key_function d+=data (pp+=(PREPOSITION_LEFT|PREPOSITION_RIGHT) d+=data)* ;
 
 function_define_statement   : LOCAL_DECLARE_OP '一術' '名之' '曰' IDENTIFIER
                               ('欲行是術' '必先得' (INT_NUM type ('曰' IDENTIFIER)+)+)?
@@ -83,7 +84,7 @@ OR                          : '中有陽乎';
 IF_LOGIC_OP                 : '等於'|'不等於'|'不大於'|'不小於'|'大於'|'小於' ;
 
 key_function                : op=(
-                            ADD | SUN | MUL | DIV
+                            ADD | SUB | MUL | DIV
                             | UNARY_OP
                             | ARRAY_COMBINE_OP
                             | ARRAY_ADD_OP

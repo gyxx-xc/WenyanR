@@ -1,10 +1,14 @@
 package utils;
 
+import java.math.BigInteger;
+
 public class WenyanValue {
 
     public enum Type {
+        INT, // used as default number type
+        BIG_INT, // not implemented
+        DOUBLE,
         BOOL,
-        NUMBER,
         STRING,
         LIST
     }
@@ -17,6 +21,22 @@ public class WenyanValue {
         this.type = type;
         this.value = value;
         this.isConst = isConst;
+    }
+
+    public static WenyanValue constOf(WenyanValue value) {
+        return new WenyanValue(value.type, value.value, true);
+    }
+
+    public static WenyanValue varOf(WenyanValue value) {
+        return new WenyanValue(value.type, value.value, false);
+    }
+
+    public boolean isType(Type type) {
+        if (type == Type.INT) {
+            return this.type == Type.INT || this.type == Type.BIG_INT || this.type == Type.DOUBLE;
+        } else {
+            return this.type == type;
+        }
     }
 
     public Type getType() {
@@ -36,28 +56,48 @@ public class WenyanValue {
     }
 
     public WenyanValue add(WenyanValue other) {
+        // case num
+        if (isType(Type.INT) && other.isType(Type.INT)) {
+            if (this.type == Type.INT) {
+                if (other.type == Type.INT)
+                    return new WenyanValue(Type.INT, (int) this.value + (int) other.value, true);
+                else if (other.type == Type.DOUBLE)
+                    return new WenyanValue(Type.DOUBLE, (int) this.value + (double) other.value, true);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else if (this.type == Type.DOUBLE) {
+                if (other.type == Type.INT)
+                    return new WenyanValue(Type.DOUBLE, (double) this.value + (int) other.value, true);
+                else if (other.type == Type.DOUBLE)
+                    return new WenyanValue(Type.DOUBLE, (double) this.value + (double) other.value, true);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else {
+                throw new RuntimeException("big int not implemented");
+            }
+        }
+        // case not num
         if (this.type != other.type)
             throw new RuntimeException("type does not match");
         if (this.type == Type.BOOL)
             throw new RuntimeException("cannot add bool");
         return new WenyanValue(this.type,
                 switch (this.type) {
-                    case BOOL -> throw new RuntimeException("not reachable");
-                    case NUMBER -> (double) this.value + (double) other.value;
                     case STRING -> (String) this.value + other.value;
                     case LIST -> null;
+                    default -> throw new RuntimeException("not reachable");
                 }, true);
     }
 
-    public WenyanValue sub(WenyanValue arg) {
+    public WenyanValue sub(WenyanValue other) {
         return null;
     }
 
-    public WenyanValue mul(WenyanValue arg) {
+    public WenyanValue mul(WenyanValue other) {
         return null;
     }
 
-    public WenyanValue div(WenyanValue arg) {
+    public WenyanValue div(WenyanValue other) {
         return null;
     }
 
@@ -65,7 +105,15 @@ public class WenyanValue {
         return null;
     }
 
-    public WenyanValue combine(WenyanValue arg) {
+    public WenyanValue mod(WenyanValue other) {
         return null;
+    }
+
+    public WenyanValue combine(WenyanValue other) {
+        if (isType(Type.LIST) && other.isType(Type.LIST)) {
+            return null;
+        } else {
+            throw new RuntimeException("type does not match");
+        }
     }
 }
