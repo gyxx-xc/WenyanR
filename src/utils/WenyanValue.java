@@ -46,6 +46,17 @@ public class WenyanValue {
         return isConst;
     }
 
+    public static WenyanValue emptyOf(Type type, boolean isConst) {
+        Object value1 = switch (type) {
+            case INT -> 0;
+            case DOUBLE -> 0.0;
+            case BOOL -> false;
+            case STRING -> "";
+            case LIST -> null;
+        };
+        return new WenyanValue(type, value1, isConst);
+    }
+
     public static WenyanValue constOf(WenyanValue value) {
         return new WenyanValue(value.type, value.value, true);
     }

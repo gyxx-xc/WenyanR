@@ -27,14 +27,13 @@ public class WenyanExprVisitor extends WenyanVisitor{
             int n = WenyanDataPhaser.parseInt(ctx.INT_NUM().getText());
             if (!ctx.d.isEmpty() && n != ctx.d.size())
                 throw new RuntimeException("number of variables does not match number of values");
+            WenyanValue.Type type = WenyanDataPhaser.parseType(ctx.type().getText());
             for (int i = 0; i < n; i++) {
                 if (!ctx.d.isEmpty()) {
                     WenyanValue value = (new WenyanDataVisitor(functionEnvironment, reultStack)).visit(ctx.d.get(i));
-                    if (!value.isType(WenyanDataPhaser.parseType(ctx.type().getText())))
-                        throw new RuntimeException("type does not match");
-                    reultStack.push(WenyanValue.constOf(value));
+                    reultStack.push(WenyanValue.constOf(value).casting(type));
                 } else {
-                    reultStack.push(new WenyanValue(WenyanDataPhaser.parseType(ctx.type().getText()), null, true));
+                    reultStack.push(WenyanValue.emptyOf(WenyanDataPhaser.parseType(ctx.type().getText()), true));
                 }
             }
             return reultStack.peek();
