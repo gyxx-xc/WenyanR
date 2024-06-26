@@ -10,6 +10,7 @@ import visitor.WenyanMainVisitor;
 public class Test {
 
     public static void main(String[] args) throws Exception {
+        System.out.println(13%5.000001);
         CharStream input = CharStreams.fromFileName("test.wy");
         WenyanRLexer lexer = new WenyanRLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
