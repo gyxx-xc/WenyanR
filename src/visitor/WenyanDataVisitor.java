@@ -35,16 +35,11 @@ public class WenyanDataVisitor extends WenyanVisitor {
 
     @Override
     public WenyanValue visitId_last(WenyanRParser.Id_lastContext ctx) {
-        if (this.reultStack.peek() == null)
+        WenyanValue value = this.reultStack.peek();
+        if (value == null)
             throw new RuntimeException("last result is null");
-        return this.reultStack.peek();
-    }
-
-    @Override
-    public WenyanValue visitId_last_with_self(WenyanRParser.Id_last_with_selfContext ctx) {
-        if (this.reultStack.peek() == null)
-            throw new RuntimeException("last result is null");
-        return this.reultStack.peek();
+        reultStack.empty();
+        return value;
     }
 
     @Override

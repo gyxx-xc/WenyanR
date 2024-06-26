@@ -3,15 +3,16 @@ grammar WenyanR;
 program                     : statement* EOF;
 
 statement                   : expr_statement
-                            | flush_statement
                             | object_statement
-
-                            | if_statement
-                            | for_statement
-                            | return_statement
-                            | BREAK
-
                             | import_statement
+                            | control_statement
+                            ;
+
+control_statement           : if_statement
+                            | for_statement
+                            | flush_statement
+                            | return_statement
+                            | break
                             ;
 
 expr_statement              : declare_statement
@@ -22,17 +23,16 @@ expr_statement              : declare_statement
                             | assign_statement
                             | boolean_algebra_statement
                             | mod_math_statement
+                            | key_function_call_statement
 
                             | function_define_statement
                             | function_call_statement
-                            | key_function_call_statement
                             ;
 
 data                        : data_type=(STRING_LITERAL|BOOL_VALUE|INT_NUM|FLOAT_NUM)    # data_primary
                             | '其'                                                       # id_last
-                            | '之'                                                       # id_last_with_self
-                            | IDENTIFIER                                                # id
-                            | data '之' (STRING_LITERAL|IDENTIFIER|INT_NUM|'其' | '長')  # data_child
+                            | IDENTIFIER                                                 # id
+                            | data '之' (STRING_LITERAL|IDENTIFIER|INT_NUM|'其' | '長')   # data_child
                             ;
 
 reference_statement         : '夫' data ;
@@ -45,7 +45,8 @@ boolean_algebra_statement   : '夫' data data op=(AND | OR) ;
 assign_statement            : '昔之' data '者' ('今' data '是矣') # assign_data_statement
                             | '昔之' data '者' '今不復存矣'        # assign_null_statement;
 
-key_function_call_statement : key_function d+=data (pp+=(PREPOSITION_LEFT|PREPOSITION_RIGHT) d+=data)* ;
+key_function_call_statement : key_function (d+=data|KEY_FUN_ID_LAST) (pp+=(PREPOSITION_LEFT|PREPOSITION_RIGHT) d+=data)* ;
+KEY_FUN_ID_LAST             : '之' ;
 
 function_define_statement   : LOCAL_DECLARE_OP '一術' '名之' '曰' IDENTIFIER
                               ('欲行是術' '必先得' (INT_NUM type ('曰' IDENTIFIER)+)+)?
@@ -59,9 +60,9 @@ object_define_statement     : '其物如是' ('物之' STRING_LITERAL '者' type
 
 flush_statement             : '噫' ;
 
-if_statement                : '若' if_expression '者' statement* ('若非' statement*)? FOR_IF_END ;
-if_expression               : data
-                            | data IF_LOGIC_OP data ;
+if_statement                : '若' if_expression '者' if+=statement* ('若非' else+=statement*)? FOR_IF_END ;
+if_expression               : data                  # if_data
+                            | data if_logic_op data # if_logic ;
 
 for_statement               : '凡' data '中之' IDENTIFIER statement* FOR_IF_END  # for_arr_statement
                             | '為是' data '遍' statement* FOR_IF_END             # for_enum_statement
@@ -81,10 +82,16 @@ IDENTIFIER                  : '「' ( ~('」') )+ '」';
 POST_MOD_MATH_OP            : '所餘幾何' ;
 AND                         : '中無陰乎';
 OR                          : '中有陽乎';
-IF_LOGIC_OP                 : '等於'|'不等於'|'不大於'|'不小於'|'大於'|'小於' ;
+if_logic_op                 : op=(EQ|NEQ|LTE|GTE|GT|LT) ;
+EQ                          : '等於' ;
+NEQ                         : '不等於' ;
+LTE                         : '不大於' ;
+GTE                         : '不小於' ;
+GT                          : '大於' ;
+LT                          : '小於'  ;
 
 key_function                : op=(
-                            ADD | SUB | MUL | DIV
+                              ADD | SUB | MUL | DIV
                             | UNARY_OP
                             | ARRAY_COMBINE_OP
                             | ARRAY_ADD_OP
@@ -121,7 +128,7 @@ INT_NUM_KEYWORDS            : '零'|'一'|'二'|'三'|'四'|'五'|'六'|'七'|'�
 BOOL_VALUE                  : '陰'|'陽' ;
 type                        : '數'|'列'|'言'|'爻' ;
 
-BREAK                       : '乃止' ;
+break                       : '乃止' ;
 
 COMMENT                     : ('注曰'|'疏曰'|'批曰') STRING_LITERAL -> skip ;
 WS                          : ([ \t\r\n]|'。'|'、')+ -> skip ;

@@ -19,4 +19,9 @@ public class WenyanMainVisitor extends WenyanVisitor {
     public WenyanValue visitExpr_statement(WenyanRParser.Expr_statementContext ctx) {
         return new WenyanExprVisitor(functionEnvironment, reultStack).visit(ctx);
     }
+
+    @Override
+    public WenyanValue visitControl_statement(WenyanRParser.Control_statementContext ctx) {
+        return new WenyanControlVisitor(functionEnvironment, reultStack).visit(ctx);
+    }
 }

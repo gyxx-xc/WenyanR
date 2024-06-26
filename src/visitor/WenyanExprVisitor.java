@@ -115,21 +115,32 @@ public class WenyanExprVisitor extends WenyanVisitor{
 
     @Override
     public WenyanValue visitKey_function_call_statement(WenyanRParser.Key_function_call_statementContext ctx) {
-        if (ctx.d.size() == 2) { // deal pp
-            WenyanValue[] args = new WenyanValue[2];
-            args[0] = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.d.get(0));
-            args[1] = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.d.get(1));
-            return switch (ctx.pp.get(0).getType()) {
-                case WenyanRParser.PREPOSITION_RIGHT -> reultStack.push((new WenyanKeyFunctionVisitor()).visit(ctx.key_function()).apply(args));
-                case WenyanRParser.PREPOSITION_LEFT -> reultStack.push((new WenyanKeyFunctionVisitor()).visit(ctx.key_function()).apply(new WenyanValue[]{args[1], args[0]}));
+        ArrayList<WenyanValue> args = new ArrayList<>();
+        WenyanValue returnValue;
+        WenyanValue value;
+        if (ctx.KEY_FUN_ID_LAST() != null) {
+            args.add(0, reultStack.peek());
+        }
+        for (WenyanRParser.DataContext d : ctx.data()) {
+            args.add(new WenyanDataVisitor(functionEnvironment, reultStack).visit(d));
+        }
+        if (args.size() == 2) { // deal pp
+            returnValue = switch (ctx.pp.get(0).getType()) {
+                case WenyanRParser.PREPOSITION_RIGHT ->
+                        (new WenyanKeyFunctionVisitor()).visit(ctx.key_function())
+                                .apply(new WenyanValue[]{args.get(0), args.get(1)});
+                case WenyanRParser.PREPOSITION_LEFT ->
+                        (new WenyanKeyFunctionVisitor()).visit(ctx.key_function())
+                                .apply(new WenyanValue[]{args.get(1), args.get(0)});
                 default -> throw new RuntimeException("unknown preposition");
             };
         } else { // ignore pp
-            List<WenyanValue> args = new ArrayList<>();
-            for (WenyanRParser.DataContext data : ctx.d) {
-                args.add(new WenyanDataVisitor(functionEnvironment, reultStack).visit(data));
-            }
-            return reultStack.push((new WenyanKeyFunctionVisitor()).visit(ctx.key_function()).apply(args.toArray(new WenyanValue[0])));
+            returnValue = (new WenyanKeyFunctionVisitor()).visit(ctx.key_function())
+                    .apply(args.toArray(new WenyanValue[0]));
         }
+        if (ctx.KEY_FUN_ID_LAST() != null) {
+            return null; // not change stack
+        }
+        return reultStack.push(returnValue);
     }
 }

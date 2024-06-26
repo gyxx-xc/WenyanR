@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.function.Function;
+
 public class WenyanValue {
 
     public enum Type {
@@ -201,5 +203,36 @@ public class WenyanValue {
         } else {
             throw new RuntimeException("type cannot be combined");
         }
+    }
+
+    public boolean equals(WenyanValue other) {
+        if (isType(Type.LIST) || other.isType(Type.LIST)) {
+            throw new RuntimeException("type does not support equals");
+        }
+        return this.value.equals(other.value);
+    }
+
+    public int compareTo(WenyanValue other) {
+        // case num
+        if (isType(Type.INT) && other.isType(Type.INT)) {
+            if (this.type == Type.INT) {
+                if (other.type == Type.INT)
+                    return Integer.compare((int) this.value, (int) other.value);
+                else if (other.type == Type.DOUBLE)
+                    return Double.compare((int) this.value, (double) other.value);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else if (this.type == Type.DOUBLE) {
+                if (other.type == Type.INT)
+                    return Double.compare((double) this.value, (int) other.value);
+                else if (other.type == Type.DOUBLE)
+                    return Double.compare((double) this.value, (double) other.value);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else {
+                throw new RuntimeException("big int not implemented");
+            }
+        }
+        throw new RuntimeException("type does not support compare");
     }
 }
