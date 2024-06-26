@@ -1,7 +1,5 @@
 package utils;
 
-import java.math.BigInteger;
-
 public class WenyanValue {
 
     public enum Type {

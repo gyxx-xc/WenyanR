@@ -25,7 +25,7 @@ public class WenyanFunctionEnvironment {
         return variables.get(id);
     }
 
-    public WenyanValue setVariable(String id, WenyanValue value) {
-        return variables.put(id, value);
+    public void setVariable(String id, WenyanValue value) {
+        variables.put(id, value);
     }
 }

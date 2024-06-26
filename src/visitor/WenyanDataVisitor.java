@@ -5,7 +5,6 @@ import utils.WenyanDataPhaser;
 import utils.WenyanFunctionEnvironment;
 import utils.WenyanValue;
 
-import java.math.BigInteger;
 import java.util.Stack;
 
 public class WenyanDataVisitor extends WenyanVisitor {
@@ -30,8 +29,7 @@ public class WenyanDataVisitor extends WenyanVisitor {
             };
         } catch (WenyanDataPhaser.WenyanNumberException | WenyanDataPhaser.WenyanDataException e) {
             // TODO: need better error handling
-            System.out.println(e);
-            throw new RuntimeException("error");
+            throw new RuntimeException(e.getMessage());
         }
     }
 
