@@ -28,4 +28,8 @@ public class WenyanFunctionEnvironment {
     public void setVariable(String id, WenyanValue value) {
         variables.put(id, value);
     }
+
+    public boolean hasVariable(String id) {
+        return variables.containsKey(id);
+    }
 }

@@ -17,8 +17,8 @@ public class WenyanExprVisitor extends WenyanVisitor{
     // maybe it is better to use a function to push return value...
     @Override
     public WenyanValue visitReference_statement(WenyanRParser.Reference_statementContext ctx) {
-        WenyanValue value = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.data());
-        return reaultStack.push(WenyanValue.constOf(value));
+        WenyanValue value = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data());
+        return reultStack.push(WenyanValue.constOf(value));
     }
 
     @Override
@@ -29,15 +29,15 @@ public class WenyanExprVisitor extends WenyanVisitor{
                 throw new RuntimeException("number of variables does not match number of values");
             for (int i = 0; i < n; i++) {
                 if (!ctx.d.isEmpty()) {
-                    WenyanValue value = (new WenyanDataVisitor(functionEnvironment, reaultStack)).visit(ctx.d.get(i));
+                    WenyanValue value = (new WenyanDataVisitor(functionEnvironment, reultStack)).visit(ctx.d.get(i));
                     if (!value.isType(WenyanDataPhaser.parseType(ctx.type().getText())))
                         throw new RuntimeException("type does not match");
-                    reaultStack.push(WenyanValue.constOf(value));
+                    reultStack.push(WenyanValue.constOf(value));
                 } else {
-                    reaultStack.push(new WenyanValue(WenyanDataPhaser.parseType(ctx.type().getText()), null, true));
+                    reultStack.push(new WenyanValue(WenyanDataPhaser.parseType(ctx.type().getText()), null, true));
                 }
             }
-            return reaultStack.peek();
+            return reultStack.peek();
         } catch (WenyanDataPhaser.WenyanNumberException | WenyanDataPhaser.WenyanDataException | NumberFormatException e) {
             throw new RuntimeException(e);
         }
@@ -46,11 +46,11 @@ public class WenyanExprVisitor extends WenyanVisitor{
     @Override
     public WenyanValue visitInit_declare_statement(WenyanRParser.Init_declare_statementContext ctx) {
         try {
-            WenyanValue value = (new WenyanDataVisitor(functionEnvironment, reaultStack)).visit(ctx.data());
+            WenyanValue value = (new WenyanDataVisitor(functionEnvironment, reultStack)).visit(ctx.data());
             if (!value.isType(WenyanDataPhaser.parseType(ctx.type().getText())))
                 throw new RuntimeException("type does not match");
-            reaultStack.push(WenyanValue.constOf(value));
-            return reaultStack.peek();
+            reultStack.push(WenyanValue.constOf(value));
+            return reultStack.peek();
         } catch (WenyanDataPhaser.WenyanDataException e) {
             throw new RuntimeException(e);
         }
@@ -61,42 +61,42 @@ public class WenyanExprVisitor extends WenyanVisitor{
         int n = ctx.d.size();
         for (int i = 0; i < n; i ++) {
             functionEnvironment.setVariable(ctx.d.get(i).getText(),
-                    WenyanValue.varOf(reaultStack.get(reaultStack.size() - n + i)));
+                    WenyanValue.varOf(reultStack.get(reultStack.size() - n + i)));
         }
-        return reaultStack.peek();
+        return reultStack.peek();
     }
 
     @Override
     public WenyanValue visitAssign_data_statement(WenyanRParser.Assign_data_statementContext ctx) {
-        WenyanValue var = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.data(0));
+        WenyanValue var = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
         if (var.isConst())
             throw new RuntimeException("cannot assign to constant");
-        WenyanValue value = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.data(1));
+        WenyanValue value = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
         if (var.getType() != value.getType())
             throw new RuntimeException("type does not match");
         var.setValue(value.getValue());
-        return reaultStack.push(var);
+        return reultStack.push(var);
     }
 
     @Override
     public WenyanValue visitAssign_null_statement(WenyanRParser.Assign_null_statementContext ctx) {
-        WenyanValue var = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.data());
+        WenyanValue var = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data());
         if (var.isConst())
             throw new RuntimeException("cannot assign to constant");
         var.setValue(null);
-        return reaultStack.push(null);
+        return reultStack.push(null);
     }
 
     @Override
     public WenyanValue visitBoolean_algebra_statement(WenyanRParser.Boolean_algebra_statementContext ctx) {
-        WenyanValue left = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.data(0));
-        WenyanValue right = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.data(1));
+        WenyanValue left = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
+        WenyanValue right = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
         if (left.getType() != WenyanValue.Type.BOOL || right.getType() != WenyanValue.Type.BOOL)
             throw new RuntimeException("type does not match");
         return switch (ctx.op.getType()) {
-            case WenyanRParser.AND -> reaultStack.push(new WenyanValue(WenyanValue.Type.BOOL,
+            case WenyanRParser.AND -> reultStack.push(new WenyanValue(WenyanValue.Type.BOOL,
                     (boolean) left.getValue() && (boolean) right.getValue(), true));
-            case WenyanRParser.OR -> reaultStack.push(new WenyanValue(WenyanValue.Type.BOOL,
+            case WenyanRParser.OR -> reultStack.push(new WenyanValue(WenyanValue.Type.BOOL,
                     (boolean) left.getValue() || (boolean) right.getValue(), true));
             default -> throw new RuntimeException("unknown operator");
         };
@@ -104,11 +104,11 @@ public class WenyanExprVisitor extends WenyanVisitor{
 
     @Override
     public WenyanValue visitMod_math_statement(WenyanRParser.Mod_math_statementContext ctx) {
-        WenyanValue left = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.data(0));
-        WenyanValue right = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.data(1));
+        WenyanValue left = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
+        WenyanValue right = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
         return switch (ctx.pp.getType()) {
-            case WenyanRParser.PREPOSITION_RIGHT -> reaultStack.push(right.mod(left));
-            case WenyanRParser.PREPOSITION_LEFT -> reaultStack.push(left.mod(right));
+            case WenyanRParser.PREPOSITION_RIGHT -> reultStack.push(right.mod(left));
+            case WenyanRParser.PREPOSITION_LEFT -> reultStack.push(left.mod(right));
             default -> throw new RuntimeException("unknown preposition");
         };
     }
@@ -117,19 +117,19 @@ public class WenyanExprVisitor extends WenyanVisitor{
     public WenyanValue visitKey_function_call_statement(WenyanRParser.Key_function_call_statementContext ctx) {
         if (ctx.d.size() == 2) { // deal pp
             WenyanValue[] args = new WenyanValue[2];
-            args[0] = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.d.get(0));
-            args[1] = new WenyanDataVisitor(functionEnvironment, reaultStack).visit(ctx.d.get(1));
+            args[0] = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.d.get(0));
+            args[1] = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.d.get(1));
             return switch (ctx.pp.get(0).getType()) {
-                case WenyanRParser.PREPOSITION_RIGHT -> reaultStack.push((new WenyanKeyFunctionVisitor()).visit(ctx.key_function()).apply(args));
-                case WenyanRParser.PREPOSITION_LEFT -> reaultStack.push((new WenyanKeyFunctionVisitor()).visit(ctx.key_function()).apply(new WenyanValue[]{args[1], args[0]}));
+                case WenyanRParser.PREPOSITION_RIGHT -> reultStack.push((new WenyanKeyFunctionVisitor()).visit(ctx.key_function()).apply(args));
+                case WenyanRParser.PREPOSITION_LEFT -> reultStack.push((new WenyanKeyFunctionVisitor()).visit(ctx.key_function()).apply(new WenyanValue[]{args[1], args[0]}));
                 default -> throw new RuntimeException("unknown preposition");
             };
         } else { // ignore pp
             List<WenyanValue> args = new ArrayList<>();
             for (WenyanRParser.DataContext data : ctx.d) {
-                args.add(new WenyanDataVisitor(functionEnvironment, reaultStack).visit(data));
+                args.add(new WenyanDataVisitor(functionEnvironment, reultStack).visit(data));
             }
-            return reaultStack.push((new WenyanKeyFunctionVisitor()).visit(ctx.key_function()).apply(args.toArray(new WenyanValue[0])));
+            return reultStack.push((new WenyanKeyFunctionVisitor()).visit(ctx.key_function()).apply(args.toArray(new WenyanValue[0])));
         }
     }
 }

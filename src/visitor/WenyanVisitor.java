@@ -8,10 +8,10 @@ import java.util.Stack;
 
 public abstract class WenyanVisitor extends WenyanRBaseVisitor<WenyanValue> {
     protected WenyanFunctionEnvironment functionEnvironment;
-    protected Stack<WenyanValue> reaultStack;
+    protected Stack<WenyanValue> reultStack;
 
-    public WenyanVisitor(WenyanFunctionEnvironment functionEnvironment, Stack<WenyanValue> reaultStack) {
+    public WenyanVisitor(WenyanFunctionEnvironment functionEnvironment, Stack<WenyanValue> reultStack) {
         this.functionEnvironment = functionEnvironment;
-        this.reaultStack = reaultStack;
+        this.reultStack = reultStack;
     }
 }

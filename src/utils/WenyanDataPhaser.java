@@ -210,14 +210,13 @@ public class WenyanDataPhaser {
         }
     }
 
-    public static void main(String[] args) throws WenyanNumberException {
-        System.out.println(parseInt("一百二十三"));
-        System.out.println(parseInt("一二三"));
-        System.out.println(parseInt("一百十萬一百"));
-        System.out.println(parseInt("一百二十三萬零一一百"));
-        System.out.println(parseInt("一百百二十十一一"));
-        System.out.println(parseInt("一百二十三萬零"));
-        System.out.println(parseFloat("一一又一分"));
-    }
-
+//    public static void main(String[] args) throws WenyanNumberException {
+//        System.out.println(parseInt("一百二十三"));
+//        System.out.println(parseInt("一二三"));
+//        System.out.println(parseInt("一百十萬一百"));
+//        System.out.println(parseInt("一百二十三萬零一一百"));
+//        System.out.println(parseInt("一百百二十十一一"));
+//        System.out.println(parseInt("一百二十三萬零"));
+//        System.out.println(parseFloat("一一又一分"));
+//    }
 }

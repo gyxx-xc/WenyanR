@@ -88,30 +88,118 @@ public class WenyanValue {
     }
 
     public WenyanValue sub(WenyanValue other) {
-        return null;
+        // case num
+        if (isType(Type.INT) && other.isType(Type.INT)) {
+            if (this.type == Type.INT) {
+                if (other.type == Type.INT)
+                    return new WenyanValue(Type.INT, (int) this.value - (int) other.value, true);
+                else if (other.type == Type.DOUBLE)
+                    return new WenyanValue(Type.DOUBLE, (int) this.value - (double) other.value, true);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else if (this.type == Type.DOUBLE) {
+                if (other.type == Type.INT)
+                    return new WenyanValue(Type.DOUBLE, (double) this.value - (int) other.value, true);
+                else if (other.type == Type.DOUBLE)
+                    return new WenyanValue(Type.DOUBLE, (double) this.value - (double) other.value, true);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else {
+                throw new RuntimeException("big int not implemented");
+            }
+        }
+        // case not num
+        throw new RuntimeException("type cannot be subtracted");
     }
 
     public WenyanValue mul(WenyanValue other) {
-        return null;
+        // case num
+        if (isType(Type.INT) && other.isType(Type.INT)) {
+            if (this.type == Type.INT) {
+                if (other.type == Type.INT)
+                    return new WenyanValue(Type.INT, (int) this.value * (int) other.value, true);
+                else if (other.type == Type.DOUBLE)
+                    return new WenyanValue(Type.DOUBLE, (int) this.value * (double) other.value, true);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else if (this.type == Type.DOUBLE) {
+                if (other.type == Type.INT)
+                    return new WenyanValue(Type.DOUBLE, (double) this.value * (int) other.value, true);
+                else if (other.type == Type.DOUBLE)
+                    return new WenyanValue(Type.DOUBLE, (double) this.value * (double) other.value, true);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else {
+                throw new RuntimeException("big int not implemented");
+            }
+        }
+        // case not num
+        throw new RuntimeException("type cannot be multiplied");
     }
 
     public WenyanValue div(WenyanValue other) {
-        return null;
+        // case num
+        if (isType(Type.INT) && other.isType(Type.INT)) {
+            if (this.type == Type.INT) {
+                if (other.type == Type.INT)
+                    return new WenyanValue(Type.INT, (double)((int) this.value) / (int) other.value, true);
+                else if (other.type == Type.DOUBLE)
+                    return new WenyanValue(Type.DOUBLE, (int) this.value / (double) other.value, true);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else if (this.type == Type.DOUBLE) {
+                if (other.type == Type.INT)
+                    return new WenyanValue(Type.DOUBLE, (double) this.value / (int) other.value, true);
+                else if (other.type == Type.DOUBLE)
+                    return new WenyanValue(Type.DOUBLE, (double) this.value / (double) other.value, true);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else {
+                throw new RuntimeException("big int not implemented");
+            }
+        }
+        // case not num
+        throw new RuntimeException("type cannot be divided");
     }
 
     public WenyanValue not() {
-        return null;
+        if (isType(Type.BOOL)) {
+            return new WenyanValue(Type.BOOL, !(boolean) value, true);
+        } else {
+            throw new RuntimeException("type cannot be reversed");
+        }
     }
 
     public WenyanValue mod(WenyanValue other) {
-        return null;
+        // case num
+        if (isType(Type.INT) && other.isType(Type.INT)) {
+            if (this.type == Type.INT) {
+                if (other.type == Type.INT)
+                    return new WenyanValue(Type.INT, (int) this.value % (int) other.value, true);
+                else if (other.type == Type.DOUBLE)
+                    return new WenyanValue(Type.DOUBLE, (int) this.value % (double) other.value, true);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else if (this.type == Type.DOUBLE) {
+                if (other.type == Type.INT)
+                    return new WenyanValue(Type.DOUBLE, (double) this.value % (int) other.value, true);
+                else if (other.type == Type.DOUBLE)
+                    return new WenyanValue(Type.DOUBLE, (double) this.value % (double) other.value, true);
+                else
+                    throw new RuntimeException("big int not implemented");
+            } else {
+                throw new RuntimeException("big int not implemented");
+            }
+        }
+        // case not num
+        throw new RuntimeException("type cannot be modulated");
     }
 
     public WenyanValue combine(WenyanValue other) {
         if (isType(Type.LIST) && other.isType(Type.LIST)) {
             return null;
         } else {
-            throw new RuntimeException("type does not match");
+            throw new RuntimeException("type cannot be combined");
         }
     }
 }

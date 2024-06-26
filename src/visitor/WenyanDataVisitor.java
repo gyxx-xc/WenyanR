@@ -35,18 +35,24 @@ public class WenyanDataVisitor extends WenyanVisitor {
 
     @Override
     public WenyanValue visitId_last(WenyanRParser.Id_lastContext ctx) {
-        return this.reaultStack.peek();
+        if (this.reultStack.peek() == null)
+            throw new RuntimeException("last result is null");
+        return this.reultStack.peek();
     }
 
     @Override
     public WenyanValue visitId_last_with_self(WenyanRParser.Id_last_with_selfContext ctx) {
-        return this.reaultStack.peek();
+        if (this.reultStack.peek() == null)
+            throw new RuntimeException("last result is null");
+        return this.reultStack.peek();
     }
 
     @Override
     public WenyanValue visitId(WenyanRParser.IdContext ctx) {
         String id = ctx.IDENTIFIER().getText();
-        return this.functionEnvironment.getVariable(id.substring(1, id.length() - 1));
+        if (!functionEnvironment.hasVariable(id))
+            throw new RuntimeException("variable not found");
+        return functionEnvironment.getVariable(id);
     }
 
 }
