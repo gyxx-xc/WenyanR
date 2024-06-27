@@ -14,25 +14,25 @@ import java.util.Stack;
 // return_statement
 // BREAK
 public class WenyanControlVisitor extends WenyanVisitor{
-    public WenyanControlVisitor(WenyanFunctionEnvironment functionEnvironment, Stack<WenyanValue> reultStack) {
-        super(functionEnvironment, reultStack);
+    public WenyanControlVisitor(WenyanFunctionEnvironment functionEnvironment) {
+        super(functionEnvironment);
     }
 
     @Override
     public WenyanValue visitFlush_statement(WenyanRParser.Flush_statementContext ctx) {
-        reultStack.empty();
+        functionEnvironment.resultStack.empty();
         return null;
     }
 
     @Override
     public WenyanValue visitIf_statement(WenyanRParser.If_statementContext ctx) {
-        if (new IfExprVisitor(functionEnvironment, reultStack).visit(ctx.if_expression())) {
-            WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment, reultStack);
+        if (new IfExprVisitor(functionEnvironment).visit(ctx.if_expression())) {
+            WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment);
             for (WenyanRParser.StatementContext statementContext : ctx.if_) {
                 visitor.visit(statementContext);
             }
         } else if (!ctx.else_.isEmpty()) {
-            WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment, reultStack);
+            WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment);
             for (WenyanRParser.StatementContext statementContext : ctx.else_) {
                 visitor.visit(statementContext);
             }
@@ -47,10 +47,10 @@ public class WenyanControlVisitor extends WenyanVisitor{
 
     @Override
     public WenyanValue visitFor_enum_statement(WenyanRParser.For_enum_statementContext ctx) {
-        WenyanValue value = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data());
-        value = value.casting(WenyanValue.Type.INT);
+        WenyanValue value = new WenyanDataVisitor(functionEnvironment).visit(ctx.data());
+        value = WenyanValue.constOf(value).casting(WenyanValue.Type.INT);
         int count = (int) value.getValue();
-        WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment, reultStack);
+        WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment);
         for (int i = 0; i < count; i++) {
             try {
                 for (WenyanRParser.StatementContext statementContext : ctx.statement()) {
@@ -65,7 +65,7 @@ public class WenyanControlVisitor extends WenyanVisitor{
 
     @Override
     public WenyanValue visitFor_while_statement(WenyanRParser.For_while_statementContext ctx) {
-        WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment, reultStack);
+        WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment);
         while (true) {
             try {
                 for (WenyanRParser.StatementContext statementContext : ctx.statement()) {
@@ -83,59 +83,65 @@ public class WenyanControlVisitor extends WenyanVisitor{
         throw new BreakException();
     }
 
+    @Override
+    public WenyanValue visitReturn_data_statement(WenyanRParser.Return_data_statementContext ctx) {
+        throw new ReturnException(new WenyanDataVisitor(functionEnvironment).visit(ctx.data()));
+    }
+
+    @Override
+    public WenyanValue visitReturn_last_statement(WenyanRParser.Return_last_statementContext ctx) {
+        throw new ReturnException(functionEnvironment.resultStack.peek());
+    }
+
+    @Override
+    public WenyanValue visitReturn_void_statement(WenyanRParser.Return_void_statementContext ctx) {
+        throw new ReturnException(null);
+    }
+
     private static class IfExprVisitor extends WenyanRBaseVisitor<Boolean> {
         protected WenyanFunctionEnvironment functionEnvironment;
-        protected Stack<WenyanValue> reultStack;
 
-        public IfExprVisitor(WenyanFunctionEnvironment functionEnvironment, Stack<WenyanValue> reultStack) {
+        public IfExprVisitor(WenyanFunctionEnvironment functionEnvironment) {
             this.functionEnvironment = functionEnvironment;
-            this.reultStack = reultStack;
         }
 
         @Override
         public Boolean visitIf_data(WenyanRParser.If_dataContext ctx) {
-            WenyanValue value = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data());
-            value = value.casting(WenyanValue.Type.BOOL);
+            WenyanValue value = new WenyanDataVisitor(functionEnvironment).visit(ctx.data());
+            value = WenyanValue.constOf(value).casting(WenyanValue.Type.BOOL);
             return (Boolean) value.getValue();
         }
 
         @Override
         public Boolean visitIf_logic(WenyanRParser.If_logicContext ctx) {
-            WenyanValue left, right;
-            switch (ctx.if_logic_op().op.getType()) {
-                case WenyanRParser.EQ :
-                    left = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
-                    right = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
-                    return left.equals(right);
-                case WenyanRParser.NEQ :
-                    left = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
-                    right = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
-                    return !left.equals(right);
-                case WenyanRParser.GT :
-                    left = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
-                    right = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
-                    return left.compareTo(right) > 0;
-                case WenyanRParser.GTE :
-                    left = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
-                    right = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
-                    return left.compareTo(right) >= 0;
-                case WenyanRParser.LT :
-                    left = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
-                    right = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
-                    return left.compareTo(right) < 0;
-                case WenyanRParser.LTE :
-                    left = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
-                    right = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
-                    return left.compareTo(right) <= 0;
-                default:
-                    throw new RuntimeException("unknown operator");
-            }
+            WenyanValue left = new WenyanDataVisitor(functionEnvironment).visit(ctx.data(0));
+            WenyanValue right = new WenyanDataVisitor(functionEnvironment).visit(ctx.data(1));
+            left = WenyanValue.constOf(left);
+            right = WenyanValue.constOf(right);
+            return switch (ctx.if_logic_op().op.getType()) {
+                case WenyanRParser.EQ -> left.equals(right);
+                case WenyanRParser.NEQ -> !left.equals(right);
+                case WenyanRParser.GT -> left.compareTo(right) > 0;
+                case WenyanRParser.GTE -> left.compareTo(right) >= 0;
+                case WenyanRParser.LT -> left.compareTo(right) < 0;
+                case WenyanRParser.LTE -> left.compareTo(right) <= 0;
+                default -> throw new RuntimeException("unknown operator");
+            };
         }
     }
 
-    private static class BreakException extends RuntimeException {
+    public static class BreakException extends RuntimeException {
         public BreakException() {
             super("break");
+        }
+    }
+
+    public static class ReturnException extends RuntimeException {
+        public WenyanValue value;
+
+        public ReturnException(WenyanValue value) {
+            super("return");
+            this.value = value;
         }
     }
 }

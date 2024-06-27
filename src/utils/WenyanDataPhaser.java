@@ -61,7 +61,7 @@ public class WenyanDataPhaser {
 
     private static final HashMap<String, WenyanValue.Type> TYPE_MAP = new HashMap<>() {{
         put("爻", WenyanValue.Type.BOOL);
-        put("數", WenyanValue.Type.INT);
+        put("數", WenyanValue.Type.DOUBLE);
         put("言", WenyanValue.Type.STRING);
         put("列", WenyanValue.Type.LIST);
     }};

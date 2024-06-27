@@ -4,8 +4,8 @@ program                     : statement* EOF;
 
 statement                   : expr_statement
                             | object_statement
-                            | import_statement
                             | control_statement
+                            | import_statement
                             ;
 
 control_statement           : if_statement
@@ -45,14 +45,17 @@ boolean_algebra_statement   : '夫' data data op=(AND | OR) ;
 assign_statement            : '昔之' data '者' ('今' data '是矣') # assign_data_statement
                             | '昔之' data '者' '今不復存矣'        # assign_null_statement;
 
-key_function_call_statement : key_function (d+=data|KEY_FUN_ID_LAST) (pp+=(PREPOSITION_LEFT|PREPOSITION_RIGHT) d+=data)* ;
-KEY_FUN_ID_LAST             : '之' ;
+key_function_call_statement : key_function (data|FUN_ID_LAST)
+                              (pp+=(PREPOSITION_LEFT|PREPOSITION_RIGHT) data)* ;
+FUN_ID_LAST                 : '之' ;
 
 function_define_statement   : LOCAL_DECLARE_OP '一術' '名之' '曰' IDENTIFIER
-                              ('欲行是術' '必先得' (INT_NUM type ('曰' IDENTIFIER)+)+)?
+                              ('欲行是術' '必先得' (INT_NUM type ('曰' id+=IDENTIFIER)+)+)?
                               ('是術曰' | '乃行是術曰') statement* '是謂' IDENTIFIER '之術也' ;
-function_call_statement     : '施' data (preposition data)* # function_pre_call
-                            | '取' INT_NUM '以施' data       # function_post_call
+function_call_statement     : '施' (data|key_function)
+                              (preposition (args+=data|FUN_ID_LAST))?
+                              (preposition args+=data)*               # function_pre_call
+                            | '取' INT_NUM '以施' (data|key_function)  # function_post_call
                             ;
 
 object_statement            : LOCAL_DECLARE_OP INT_NUM '物' define_statement (object_define_statement)? ;

@@ -8,8 +8,8 @@ import utils.WenyanValue;
 import java.util.Stack;
 
 public class WenyanDataVisitor extends WenyanVisitor {
-    public WenyanDataVisitor(WenyanFunctionEnvironment functionEnvironment, Stack<WenyanValue> reaultStack) {
-        super(functionEnvironment, reaultStack);
+    public WenyanDataVisitor(WenyanFunctionEnvironment functionEnvironment) {
+        super(functionEnvironment);
     }
 
     @Override
@@ -35,18 +35,16 @@ public class WenyanDataVisitor extends WenyanVisitor {
 
     @Override
     public WenyanValue visitId_last(WenyanRParser.Id_lastContext ctx) {
-        WenyanValue value = this.reultStack.peek();
+        WenyanValue value = this.functionEnvironment.resultStack.peek();
         if (value == null)
             throw new RuntimeException("last result is null");
-        reultStack.empty();
+        functionEnvironment.resultStack.empty();
         return value;
     }
 
     @Override
     public WenyanValue visitId(WenyanRParser.IdContext ctx) {
         String id = ctx.IDENTIFIER().getText();
-        if (!functionEnvironment.hasVariable(id))
-            throw new RuntimeException("variable not found");
         return functionEnvironment.getVariable(id);
     }
 

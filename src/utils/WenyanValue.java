@@ -10,15 +10,17 @@ public class WenyanValue {
         DOUBLE,
         BOOL,
         STRING,
-        LIST // not implemented
+        LIST, // not implemented
+        FUNCTION
     }
 
     public static final HashMap<Type, Integer> TYPE_CASTING_ORDER = new HashMap<>() {{
-        put(Type.LIST, 0);
-        put(Type.STRING, 1);
-        put(Type.DOUBLE, 2);
-        put(Type.INT, 3);
-        put(Type.BOOL, 4);
+        put(Type.STRING, 0);
+        put(Type.LIST, 1);
+        put(Type.FUNCTION, 2);
+        put(Type.DOUBLE, 3);
+        put(Type.INT, 4);
+        put(Type.BOOL, 5);
     }};
 
     private final Type type;
@@ -54,7 +56,7 @@ public class WenyanValue {
             case DOUBLE -> 0.0;
             case BOOL -> false;
             case STRING -> "";
-            case LIST -> null;
+            case LIST, FUNCTION -> null;
         };
         return new WenyanValue(type, value1, isConst);
     }
@@ -80,13 +82,13 @@ public class WenyanValue {
     // 2. required type
 
     // 1. wide link
-    // string -> big_int, double -> int -> bool
+    // string <- big_int, double <- int <- bool
+    //      ^- list
 
     // 2. required type
     // downgrade + wide link
     // double -> int
     // ~list -> bool
-    // list -> string
     public WenyanValue casting(Type type) {
         if (this.type == type)
             return this;
@@ -242,6 +244,7 @@ public class WenyanValue {
             case BOOL -> Boolean.toString((boolean) value);
             case STRING -> (String) value;
             case LIST -> "list";
+            case FUNCTION -> "function";
         };
     }
 
