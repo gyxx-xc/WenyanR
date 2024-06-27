@@ -6,7 +6,6 @@ import utils.WenyanFunctionEnvironment;
 import utils.WenyanValue;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 
 public class WenyanExprVisitor extends WenyanVisitor{
@@ -46,10 +45,8 @@ public class WenyanExprVisitor extends WenyanVisitor{
     public WenyanValue visitInit_declare_statement(WenyanRParser.Init_declare_statementContext ctx) {
         try {
             WenyanValue value = (new WenyanDataVisitor(functionEnvironment, reultStack)).visit(ctx.data());
-            if (!value.isType(WenyanDataPhaser.parseType(ctx.type().getText())))
-                throw new RuntimeException("type does not match");
-            reultStack.push(WenyanValue.constOf(value));
-            return reultStack.peek();
+            return reultStack.push(WenyanValue.constOf(value)
+                    .casting(WenyanDataPhaser.parseType(ctx.type().getText())));
         } catch (WenyanDataPhaser.WenyanDataException e) {
             throw new RuntimeException(e);
         }
@@ -71,9 +68,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
         if (var.isConst())
             throw new RuntimeException("cannot assign to constant");
         WenyanValue value = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
-        if (var.getType() != value.getType())
-            throw new RuntimeException("type does not match");
-        var.setValue(value.getValue());
+        var.setValue(value.casting(value.getType()).getValue());
         return reultStack.push(var);
     }
 
@@ -90,8 +85,8 @@ public class WenyanExprVisitor extends WenyanVisitor{
     public WenyanValue visitBoolean_algebra_statement(WenyanRParser.Boolean_algebra_statementContext ctx) {
         WenyanValue left = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
         WenyanValue right = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
-        if (left.getType() != WenyanValue.Type.BOOL || right.getType() != WenyanValue.Type.BOOL)
-            throw new RuntimeException("type does not match");
+        left = left.casting(WenyanValue.Type.BOOL);
+        right = right.casting(WenyanValue.Type.BOOL);
         return switch (ctx.op.getType()) {
             case WenyanRParser.AND -> reultStack.push(new WenyanValue(WenyanValue.Type.BOOL,
                     (boolean) left.getValue() && (boolean) right.getValue(), true));
@@ -106,8 +101,8 @@ public class WenyanExprVisitor extends WenyanVisitor{
         WenyanValue left = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(0));
         WenyanValue right = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data(1));
         return switch (ctx.pp.getType()) {
-            case WenyanRParser.PREPOSITION_RIGHT -> reultStack.push(right.mod(left));
-            case WenyanRParser.PREPOSITION_LEFT -> reultStack.push(left.mod(right));
+            case WenyanRParser.PREPOSITION_RIGHT -> reultStack.push(left.mod(right));
+            case WenyanRParser.PREPOSITION_LEFT -> reultStack.push(right.mod(left));
             default -> throw new RuntimeException("unknown preposition");
         };
     }
@@ -116,7 +111,6 @@ public class WenyanExprVisitor extends WenyanVisitor{
     public WenyanValue visitKey_function_call_statement(WenyanRParser.Key_function_call_statementContext ctx) {
         ArrayList<WenyanValue> args = new ArrayList<>();
         WenyanValue returnValue;
-        WenyanValue value;
         if (ctx.KEY_FUN_ID_LAST() != null) {
             args.add(0, reultStack.peek());
         }

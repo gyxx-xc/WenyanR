@@ -130,5 +130,5 @@ type                        : '數'|'列'|'言'|'爻' ;
 
 break                       : '乃止' ;
 
-COMMENT                     : ('注曰'|'疏曰'|'批曰') STRING_LITERAL -> skip ;
-WS                          : ([ \t\r\n]|'。'|'、')+ -> skip ;
+COMMENT                     : ('注曰'|'疏曰'|'批曰') WS? STRING_LITERAL -> skip ;
+WS                          : ([ \t\r\n]|'。'|'、'|'，')+ -> skip ;

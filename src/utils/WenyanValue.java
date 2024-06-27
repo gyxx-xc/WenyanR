@@ -5,6 +5,7 @@ import java.util.HashMap;
 public class WenyanValue {
 
     public enum Type {
+        NULL,
         INT, // used as default number type
         DOUBLE,
         BOOL,
@@ -48,6 +49,7 @@ public class WenyanValue {
 
     public static WenyanValue emptyOf(Type type, boolean isConst) {
         Object value1 = switch (type) {
+            case NULL -> throw new RuntimeException("cannot create empty of null");
             case INT -> 0;
             case DOUBLE -> 0.0;
             case BOOL -> false;
@@ -63,14 +65,6 @@ public class WenyanValue {
 
     public static WenyanValue varOf(WenyanValue value) {
         return new WenyanValue(value.type, value.value, false);
-    }
-
-    public boolean isType(Type type) {
-        if (type == Type.INT) {
-            return this.type == Type.INT || this.type == Type.DOUBLE;
-        } else {
-            return this.type == type;
-        }
     }
 
     // our purpose: auto casting
@@ -204,11 +198,8 @@ public class WenyanValue {
 
     public WenyanValue append(WenyanValue other) {
         // require type this list, other any
-        if (isType(Type.LIST)) {
-            return null;
-        } else {
-            throw new RuntimeException("type cannot be append");
-        }
+        casting(Type.LIST);
+        return null;
     }
 
     public boolean equals(WenyanValue other) {
@@ -239,6 +230,18 @@ public class WenyanValue {
             case DOUBLE -> Double.compare((double) left.value, (double) right.value);
             case STRING -> left.value.toString().compareTo(right.value.toString());
             default -> throw new WenyanTypeException("type cannot be compared");
+        };
+    }
+
+    @Override
+    public String toString() {
+        return switch (type) {
+            case NULL -> "null";
+            case INT -> Integer.toString((int) value);
+            case DOUBLE -> Double.toString((double) value);
+            case BOOL -> Boolean.toString((boolean) value);
+            case STRING -> (String) value;
+            case LIST -> "list";
         };
     }
 

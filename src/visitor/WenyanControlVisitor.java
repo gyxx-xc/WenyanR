@@ -48,8 +48,7 @@ public class WenyanControlVisitor extends WenyanVisitor{
     @Override
     public WenyanValue visitFor_enum_statement(WenyanRParser.For_enum_statementContext ctx) {
         WenyanValue value = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data());
-        if (!value.isType(WenyanValue.Type.INT))
-            throw new RuntimeException("for enum must be int");
+        value = value.casting(WenyanValue.Type.INT);
         int count = (int) value.getValue();
         WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment, reultStack);
         for (int i = 0; i < count; i++) {
@@ -96,11 +95,8 @@ public class WenyanControlVisitor extends WenyanVisitor{
         @Override
         public Boolean visitIf_data(WenyanRParser.If_dataContext ctx) {
             WenyanValue value = new WenyanDataVisitor(functionEnvironment, reultStack).visit(ctx.data());
-            if (value.isType(WenyanValue.Type.BOOL)) {
-                return (Boolean) value.getValue();
-            } else {
-                throw new RuntimeException("if expression must be bool");
-            }
+            value = value.casting(WenyanValue.Type.BOOL);
+            return (Boolean) value.getValue();
         }
 
         @Override
