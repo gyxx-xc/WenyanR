@@ -9,8 +9,8 @@ compile:
 clean:
 	rm src/antlr/* build/* -r
 
-run: gen-and-compile
-	cd build/antlr && grun WenyanR program -gui
+run:
+	antlr4 -o test WenyanR.g4 && cd test && javac -cp /usr/share/java/antlr-complete.jar *.java && grun WenyanR program ../test.wy -gui
 
 test: gen-and-compile
 	java -cp build:/usr/share/java/antlr-complete.jar Test

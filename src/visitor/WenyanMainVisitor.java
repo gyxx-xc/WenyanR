@@ -4,8 +4,6 @@ import antlr.WenyanRParser;
 import utils.WenyanFunctionEnvironment;
 import utils.WenyanValue;
 
-import java.util.Stack;
-
 public class WenyanMainVisitor extends WenyanVisitor {
     public WenyanMainVisitor(WenyanFunctionEnvironment functionEnvironment) {
         super(functionEnvironment);
@@ -23,5 +21,10 @@ public class WenyanMainVisitor extends WenyanVisitor {
     @Override
     public WenyanValue visitControl_statement(WenyanRParser.Control_statementContext ctx) {
         return new WenyanControlVisitor(functionEnvironment).visit(ctx);
+    }
+
+    @Override
+    public WenyanValue visitCandy_statement(WenyanRParser.Candy_statementContext ctx) {
+        return new WenyanCandyVisitor(functionEnvironment).visit(ctx);
     }
 }

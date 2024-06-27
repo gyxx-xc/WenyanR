@@ -5,8 +5,6 @@ import antlr.WenyanRParser;
 import utils.WenyanFunctionEnvironment;
 import utils.WenyanValue;
 
-import java.util.Stack;
-
 // this class is for
 // flush_statement
 // if_statement
@@ -42,7 +40,21 @@ public class WenyanControlVisitor extends WenyanVisitor{
 
     @Override
     public WenyanValue visitFor_arr_statement(WenyanRParser.For_arr_statementContext ctx) {
-        throw new RuntimeException("not implemented");
+        WenyanValue value = new WenyanDataVisitor(functionEnvironment).visit(ctx.data());
+        value = WenyanValue.constOf(value).casting(WenyanValue.Type.LIST);
+        WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment);
+        for (WenyanValue item : (WenyanValue.WenyanValueArray) value.getValue()) {
+            functionEnvironment.setVariable(ctx.IDENTIFIER().getText(), item);
+            try {
+                for (WenyanRParser.StatementContext statementContext : ctx.statement()) {
+                    visitor.visit(statementContext);
+                }
+            } catch (BreakException e) {
+                break;
+            } catch (ContinueException ignored) { // i.e. continue
+            }
+        }
+        return null;
     }
 
     @Override
@@ -58,6 +70,7 @@ public class WenyanControlVisitor extends WenyanVisitor{
                 }
             } catch (BreakException e) {
                 break;
+            } catch (ContinueException ignored) { // i.e. continue
             }
         }
         return null;
@@ -73,6 +86,7 @@ public class WenyanControlVisitor extends WenyanVisitor{
                 }
             } catch (BreakException e) {
                 break;
+            } catch (ContinueException ignored) { // i.e. continue
             }
         }
         return null;
@@ -81,6 +95,11 @@ public class WenyanControlVisitor extends WenyanVisitor{
     @Override
     public WenyanValue visitBreak(WenyanRParser.BreakContext ctx) {
         throw new BreakException();
+    }
+
+    @Override
+    public WenyanValue visitContinue(WenyanRParser.ContinueContext ctx) {
+        throw new ContinueException();
     }
 
     @Override
@@ -133,6 +152,12 @@ public class WenyanControlVisitor extends WenyanVisitor{
     public static class BreakException extends RuntimeException {
         public BreakException() {
             super("break");
+        }
+    }
+
+    public static class ContinueException extends RuntimeException {
+        public ContinueException() {
+            super("continue");
         }
     }
 

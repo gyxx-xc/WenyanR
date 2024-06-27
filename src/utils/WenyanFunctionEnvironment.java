@@ -1,7 +1,6 @@
 package utils;
 
 import antlr.WenyanRParser;
-import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.HashMap;
 import java.util.Stack;

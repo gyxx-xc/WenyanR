@@ -1,6 +1,8 @@
 package utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 public class WenyanValue {
 
@@ -10,17 +12,19 @@ public class WenyanValue {
         DOUBLE,
         BOOL,
         STRING,
-        LIST, // not implemented
+        LIST,
+        OBJECT, // not implemented
         FUNCTION
     }
 
     public static final HashMap<Type, Integer> TYPE_CASTING_ORDER = new HashMap<>() {{
         put(Type.STRING, 0);
         put(Type.LIST, 1);
-        put(Type.FUNCTION, 2);
-        put(Type.DOUBLE, 3);
-        put(Type.INT, 4);
-        put(Type.BOOL, 5);
+        put(Type.FUNCTION, 1);
+        put(Type.OBJECT, 1);
+        put(Type.DOUBLE, 2);
+        put(Type.INT, 3);
+        put(Type.BOOL, 4);
     }};
 
     private final Type type;
@@ -56,7 +60,8 @@ public class WenyanValue {
             case DOUBLE -> 0.0;
             case BOOL -> false;
             case STRING -> "";
-            case LIST, FUNCTION -> null;
+            case LIST -> new WenyanValueArray();
+            case OBJECT, FUNCTION -> null;
         };
         return new WenyanValue(type, value1, isConst);
     }
@@ -121,6 +126,9 @@ public class WenyanValue {
             if (this.type == Type.STRING) {
                 return new WenyanValue(Type.BOOL, !((String) value).isEmpty(), isConst);
             }
+            if (this.type == Type.LIST) {
+                return new WenyanValue(Type.BOOL, !((ArrayList<?>) value).isEmpty(), isConst);
+            }
         }
         throw new WenyanTypeException("cannot cast " + this.type + " to " + type);
     }
@@ -140,6 +148,11 @@ public class WenyanValue {
             case INT -> new WenyanValue(addType, (int) left.value + (int) right.value, true);
             case DOUBLE -> new WenyanValue(addType, (double) left.value + (double) right.value, true);
             case STRING -> new WenyanValue(addType, left.value.toString() + right.value.toString(), true);
+            // change self if it is a list
+            case LIST -> {
+                this.value = ((WenyanValueArray) left.value).concat((WenyanValueArray) right.value);
+                yield this;
+            }
             default -> throw new WenyanTypeException("type cannot be added");
         };
     }
@@ -200,8 +213,10 @@ public class WenyanValue {
 
     public WenyanValue append(WenyanValue other) {
         // require type this list, other any
-        casting(Type.LIST);
-        return null;
+        casting(Type.LIST); // throw exception if not (or can't cast to) list
+        WenyanValueArray list = (WenyanValueArray) value;
+        list.add(WenyanValue.varOf(other));
+        return this;
     }
 
     public boolean equals(WenyanValue other) {
@@ -235,6 +250,7 @@ public class WenyanValue {
         };
     }
 
+    // TODO
     @Override
     public String toString() {
         return switch (type) {
@@ -243,9 +259,27 @@ public class WenyanValue {
             case DOUBLE -> Double.toString((double) value);
             case BOOL -> Boolean.toString((boolean) value);
             case STRING -> (String) value;
-            case LIST -> "list";
+            case LIST -> {
+                String result = "";
+                for (WenyanValue wenyanValue : (WenyanValueArray) value) {
+                   result += (result.isEmpty()?"":" ") + wenyanValue.toString();
+                }
+                yield result;
+            }
             case FUNCTION -> "function";
+            case OBJECT -> "object";
         };
+    }
+
+    public static class WenyanValueArray extends ArrayList<WenyanValue> {
+        public WenyanValueArray concat(WenyanValueArray other) {
+            addAll(other);
+            return this;
+        }
+
+        public WenyanValue get(WenyanValue index) {
+            return get((int)index.casting(Type.INT).getValue()-1);
+        }
     }
 
     public static class WenyanTypeException extends RuntimeException {

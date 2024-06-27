@@ -5,6 +5,8 @@ import java.util.HashSet;
 
 public class WenyanDataPhaser {
     public static HashMap<String, Integer> DIGIT = new HashMap<>() {{
+        put("〇", 0);
+        put("又", 0);
         put("零", 0);
         put("一", 1);
         put("二", 2);
@@ -33,6 +35,10 @@ public class WenyanDataPhaser {
         put("正", 40);
         put("載", 44);
         put("極", 48);
+    }};
+
+    public static HashSet<String> SIGN = new HashSet<>() {{
+        add("負");
     }};
 
     public static HashSet<String> FLOAT_DIVISION = new HashSet<>() {{
@@ -67,6 +73,8 @@ public class WenyanDataPhaser {
     }};
 
     public static int parseInt(String text) throws WenyanNumberException {
+        if (SIGN.contains(text.substring(0, 1)))
+            return -parseInt(text.substring(1));
         Num num = parseIntHelper(text);
         return Integer.parseInt(num.num + "0".repeat(num.exp));
     }
@@ -198,13 +206,13 @@ public class WenyanDataPhaser {
         }
     }
 
-    public static class WenyanNumberException extends Exception {
+    public static class WenyanNumberException extends RuntimeException {
         public WenyanNumberException(String message) {
             super(message);
         }
     }
 
-    public static class WenyanDataException extends Exception {
+    public static class WenyanDataException extends RuntimeException {
         public WenyanDataException(String message) {
             super(message);
         }

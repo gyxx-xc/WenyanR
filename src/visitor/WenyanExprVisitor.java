@@ -6,8 +6,6 @@ import utils.WenyanFunctionEnvironment;
 import utils.WenyanValue;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Stack;
 
 public class WenyanExprVisitor extends WenyanVisitor{
     public WenyanExprVisitor(WenyanFunctionEnvironment functionEnvironment) {
@@ -23,34 +21,28 @@ public class WenyanExprVisitor extends WenyanVisitor{
 
     @Override
     public WenyanValue visitDeclare_statement(WenyanRParser.Declare_statementContext ctx) {
-        try {
-            int n = WenyanDataPhaser.parseInt(ctx.INT_NUM().getText());
-            if (!ctx.d.isEmpty() && n != ctx.d.size())
-                throw new RuntimeException("number of variables does not match number of values");
-            WenyanValue.Type type = WenyanDataPhaser.parseType(ctx.type().getText());
-            for (int i = 0; i < n; i++) {
-                if (!ctx.d.isEmpty()) {
-                    WenyanValue value = (new WenyanDataVisitor(functionEnvironment)).visit(ctx.d.get(i));
-                    functionEnvironment.resultStack.push(WenyanValue.constOf(value).casting(type));
-                } else {
-                    functionEnvironment.resultStack.push(WenyanValue.emptyOf(WenyanDataPhaser.parseType(ctx.type().getText()), true));
-                }
-            }
-            return functionEnvironment.resultStack.peek();
-        } catch (WenyanDataPhaser.WenyanNumberException | WenyanDataPhaser.WenyanDataException | NumberFormatException e) {
-            throw new RuntimeException(e);
+        int n = WenyanDataPhaser.parseInt(ctx.INT_NUM().getText());
+        if (!ctx.d.isEmpty() && n != ctx.d.size()) {
+            System.out.println(ctx.getText());
+            throw new RuntimeException("number of variables does not match number of values");
         }
+        WenyanValue.Type type = WenyanDataPhaser.parseType(ctx.type().getText());
+        for (int i = 0; i < n; i++) {
+            if (!ctx.d.isEmpty()) {
+                WenyanValue value = (new WenyanDataVisitor(functionEnvironment)).visit(ctx.d.get(i));
+                functionEnvironment.resultStack.push(WenyanValue.constOf(value).casting(type));
+            } else {
+                functionEnvironment.resultStack.push(WenyanValue.emptyOf(WenyanDataPhaser.parseType(ctx.type().getText()), true));
+            }
+        }
+        return functionEnvironment.resultStack.peek();
     }
 
     @Override
     public WenyanValue visitInit_declare_statement(WenyanRParser.Init_declare_statementContext ctx) {
-        try {
-            WenyanValue value = (new WenyanDataVisitor(functionEnvironment)).visit(ctx.data());
-            return functionEnvironment.resultStack.push(WenyanValue.constOf(value)
-                    .casting(WenyanDataPhaser.parseType(ctx.type().getText())));
-        } catch (WenyanDataPhaser.WenyanDataException e) {
-            throw new RuntimeException(e);
-        }
+        WenyanValue value = (new WenyanDataVisitor(functionEnvironment)).visit(ctx.data());
+        return functionEnvironment.resultStack.push(WenyanValue.constOf(value)
+                .casting(WenyanDataPhaser.parseType(ctx.type().getText())));
     }
 
     @Override
@@ -71,7 +63,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
         WenyanValue value = new WenyanDataVisitor(functionEnvironment).visit(ctx.data(1));
         // although the constOf do nothing here,
         // it is better to keep the code consistent
-        var.setValue(WenyanValue.constOf(value).casting(value.getType()).getValue());
+        var.setValue(WenyanValue.constOf(value).casting(var.getType()).getValue());
         return functionEnvironment.resultStack.push(var);
     }
 
@@ -145,19 +137,27 @@ public class WenyanExprVisitor extends WenyanVisitor{
     }
 
     @Override
+    public WenyanValue visitDeclare_write_candy_statement(WenyanRParser.Declare_write_candy_statementContext ctx) {
+        visit(ctx.declare_statement());
+        int n = WenyanDataPhaser.parseInt(ctx.declare_statement().INT_NUM().getText());
+        ArrayList<WenyanValue> values = new ArrayList<>();
+        for (int i = 0; i < n; i ++) {
+            values.add(functionEnvironment.resultStack.get(functionEnvironment.resultStack.size() - n + i));
+        }
+        WenyanKeyFunctionVisitor.writeKeyFunction().apply(values.toArray(new WenyanValue[0]));
+        return functionEnvironment.resultStack.peek();
+    }
+
+    @Override
     public WenyanValue visitFunction_define_statement(WenyanRParser.Function_define_statementContext ctx) {
         if (!ctx.IDENTIFIER(0).getText().equals(ctx.IDENTIFIER(ctx.IDENTIFIER().size()-1).getText())) {
             throw new RuntimeException("function name does not match");
         }
         ArrayList<WenyanValue.Type> argsType = new ArrayList<>();
-        try {
-            for (int i = 0; i < ctx.INT_NUM().size(); i ++) {
-                int n = WenyanDataPhaser.parseInt(ctx.INT_NUM(i).getText());
-                for (int j = 0; j < n; j ++)
-                    argsType.add(WenyanDataPhaser.parseType(ctx.type(i).getText()));
-            }
-        } catch (WenyanDataPhaser.WenyanDataException | WenyanDataPhaser.WenyanNumberException e) {
-            throw new RuntimeException(e);
+        for (int i = 0; i < ctx.INT_NUM().size(); i ++) {
+            int n = WenyanDataPhaser.parseInt(ctx.INT_NUM(i).getText());
+            for (int j = 0; j < n; j ++)
+                argsType.add(WenyanDataPhaser.parseType(ctx.type(i).getText()));
         }
         WenyanFunctionEnvironment.FunctionSign sign = new WenyanFunctionEnvironment.FunctionSign(
                 ctx.IDENTIFIER(0).getText(), argsType.toArray(new WenyanValue.Type[0]));
@@ -196,12 +196,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
     @Override
     public WenyanValue visitFunction_post_call(WenyanRParser.Function_post_callContext ctx) {
         ArrayList<WenyanValue> args = new ArrayList<>();
-        int n;
-        try {
-            n = WenyanDataPhaser.parseInt(ctx.INT_NUM().getText());
-        } catch (WenyanDataPhaser.WenyanNumberException e) {
-            throw new RuntimeException(e);
-        }
+        int n = WenyanDataPhaser.parseInt(ctx.INT_NUM().getText());
         for (int i = 0; i < n; i ++) {
             args.add(0, WenyanValue.constOf(functionEnvironment.resultStack.pop()));
         }
@@ -227,7 +222,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
         }
         WenyanFunctionEnvironment functionEnvironment = new WenyanFunctionEnvironment(this.functionEnvironment);
         for (int i = 0; i < args.length; i ++) {
-            functionEnvironment.setVariable(func.id.get(i).getText(), args[i]);
+            functionEnvironment.setVariable(func.id.get(i).getText(), WenyanValue.varOf(args[i]));
         }
         WenyanMainVisitor visitor = new WenyanMainVisitor(functionEnvironment);
         try {
