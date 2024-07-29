@@ -95,7 +95,11 @@ public class WenyanExprVisitor extends WenyanVisitor{
 
     @Override
     public WenyanValue visitMod_math_statement(WenyanRParser.Mod_math_statementContext ctx) {
-        WenyanValue left = new WenyanDataVisitor(functionEnvironment).visit(ctx.data(0));
+        WenyanValue left;
+        if (ctx.ZHI() != null)
+            left = WenyanValue.constOf(functionEnvironment.resultStack.peek());
+        else
+            left = new WenyanDataVisitor(functionEnvironment).visit(ctx.data(0));
         WenyanValue right = new WenyanDataVisitor(functionEnvironment).visit(ctx.data(1));
         left = WenyanValue.constOf(left);
         right = WenyanValue.constOf(right);
@@ -107,10 +111,10 @@ public class WenyanExprVisitor extends WenyanVisitor{
     }
 
     @Override
-    public WenyanValue visitKey_function_call_statement(WenyanRParser.Key_function_call_statementContext ctx) {
+    public WenyanValue visitKey_function_call(WenyanRParser.Key_function_callContext ctx) {
         ArrayList<WenyanValue> args = new ArrayList<>();
         WenyanValue returnValue;
-        if (ctx.FUN_ID_LAST() != null) {
+        if (ctx.ZHI() != null) {
             args.add(WenyanValue.constOf(functionEnvironment.resultStack.peek()));
         }
         for (WenyanRParser.DataContext d : ctx.data()) {
@@ -130,7 +134,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
             returnValue = (new WenyanKeyFunctionVisitor()).visit(ctx.key_function())
                     .apply(args.toArray(new WenyanValue[0]));
         }
-        if (ctx.FUN_ID_LAST() != null) {
+        if (ctx.ZHI() != null) {
             return null; // not change stack
         }
         return functionEnvironment.resultStack.push(returnValue);
@@ -154,7 +158,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
             throw new RuntimeException("function name does not match");
         }
         ArrayList<WenyanValue.Type> argsType = new ArrayList<>();
-        for (int i = 0; i < ctx.INT_NUM().size(); i ++) {
+        for (int i = 0; i < ctx.args.size(); i ++) {
             int n = WenyanDataPhaser.parseInt(ctx.INT_NUM(i).getText());
             for (int j = 0; j < n; j ++)
                 argsType.add(WenyanDataPhaser.parseType(ctx.type(i).getText()));
@@ -171,7 +175,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
     public WenyanValue visitFunction_pre_call(WenyanRParser.Function_pre_callContext ctx) {
         ArrayList<WenyanValue> args = new ArrayList<>();
         WenyanValue returnValue;
-        if (ctx.FUN_ID_LAST() != null) {
+        if (ctx.ZHI() != null) {
             args.add(WenyanValue.constOf(functionEnvironment.resultStack.peek()));
         }
         for (WenyanRParser.DataContext d : ctx.args) {
@@ -187,7 +191,7 @@ public class WenyanExprVisitor extends WenyanVisitor{
                                     .visit(ctx.data(0)).getValue());
             returnValue = callFunction(sign, args.toArray(new WenyanValue[0]));
         }
-        if (ctx.FUN_ID_LAST() != null) {
+        if (ctx.ZHI() != null) {
             return null; // not change stack
         }
         return functionEnvironment.resultStack.push(returnValue);
